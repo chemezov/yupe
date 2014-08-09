@@ -137,14 +137,6 @@ div#page {
     padding-bottom: 50px;
 }
 
-.navbar-fixed-top {
-    border-bottom: 2px solid #FF9600;
-}
-
-.navbar-brand {
-    padding: 7px 15px 15px 15px;
-}
-
 .nav-list > li {
     margin: 0 15px;
 }
