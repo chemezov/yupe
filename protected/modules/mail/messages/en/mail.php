@@ -96,4 +96,8 @@ return array (
     'not active' => '',
     'are required.' => '',
     'management' => '',
+	'Visual editor' => '',
+	'Menu items order' => '',
+	'Template' => '',
+	'Select {field}' => '',
 );

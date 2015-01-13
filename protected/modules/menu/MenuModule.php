@@ -13,6 +13,8 @@
 
 class MenuModule extends yupe\components\WebModule
 {
+    const VERSION = '0.7';
+
     public $defaultController = 'menu';
 
     public $menuCache         = 'menu.cache';
@@ -39,7 +41,7 @@ class MenuModule extends yupe\components\WebModule
 
     public function getVersion()
     {
-        return Yii::t('MenuModule.menu', '0.3');
+        return self::VERSION;
     }
 
     public function getAuthor()
@@ -62,23 +64,29 @@ class MenuModule extends yupe\components\WebModule
         return "list";
     }
 
+    public function getAdminPageLink()
+    {
+        return '/menu/menuBackend/index';
+    }
+
     public function getNavigation()
     {
         return array(
             array('label' => Yii::t('MenuModule.menu', 'Menu')),
-            array('icon' => 'list-alt','label' => Yii::t('MenuModule.menu', 'Manage menu'), 'url' => array('/menu/menu/index')),
-            array('icon' => 'plus-sign','label' => Yii::t('MenuModule.menu', 'Create menu'), 'url' => array('/menu/menu/create')),
+            array('icon' => 'list-alt','label' => Yii::t('MenuModule.menu', 'Manage menu'), 'url' => array('/menu/menuBackend/index')),
+            array('icon' => 'plus-sign','label' => Yii::t('MenuModule.menu', 'Create menu'), 'url' => array('/menu/menuBackend/create')),
             array('label' => Yii::t('MenuModule.menu', 'Menu items')),
-            array('icon' => 'list-alt','label' => Yii::t('MenuModule.menu', 'Manage menu items'), 'url' => array('/menu/menuitem/index')),
-            array('icon' => 'plus-sign','label' => Yii::t('MenuModule.menu', 'Create menu item'), 'url' => array('/menu/menuitem/create')),
+            array('icon' => 'list-alt','label' => Yii::t('MenuModule.menu', 'Manage menu items'), 'url' => array('/menu/menuitemBackend/index')),
+            array('icon' => 'plus-sign','label' => Yii::t('MenuModule.menu', 'Create menu item'), 'url' => array('/menu/menuitemBackend/create')),
         );
     }
 
     public function init()
     {
+        parent::init();
+
         $this->setImport(array(
-            'application.modules.menu.models.*',
-            'application.modules.menu.components.*',
+            'application.modules.menu.models.*'         
         ));
     }
 }

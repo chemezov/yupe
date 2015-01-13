@@ -9,17 +9,27 @@
  * Добавленный параметр используется в LanguageBehavior
  *
  * @category YupeComponent
- * @package  yupe
+ * @package  yupe.modules.yupe.components.urlManager
  * @author   YupeTeam <team@yupe.ru>
  * @license  BSD http://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F_BSD
  * @link     http://yupe.ru
  */
+namespace yupe\components\urlManager;
+
+use CUrlManager;
+use Exception;
+use Yii;
+use yupe\widgets\YFlashMessages;
+
 class LangUrlManager extends CUrlManager
 {
     public $languages;
+    public $langs;
     public $langParam         = 'language';
     public $languageInPath    = true;
     public $preferredLanguage = false;
+
+    private $_appLang = false;
 
     /**
      * Инициализация компонента:
@@ -32,11 +42,8 @@ class LangUrlManager extends CUrlManager
      */
     public function init()
     {
-        // Получаем из настроек доступные языки:
-        $langs = Yii::app()->getModule('yupe')->availableLanguages;
-
-        // Разделяем на массив и удаляем пустые элементы:
-        $this->languages = explode(",", $langs);
+        // Получаем список языков:
+        $this->loadLangs();
 
         // Если используемых языков меньше двух,
         // то нам сойдёт и стандартный urlManager:
@@ -44,29 +51,33 @@ class LangUrlManager extends CUrlManager
             return parent::init();
         }
 
+
         // Если указаны - добавляем правила для обработки, иначе ничего не трогаем вообще
-        if ($this->languageInPath) {
+        if (!$this->languageInPath) {
+            return parent::init();
+        }
 
-            // Применяем преобразование, для строки с языками:
-            $langs = str_replace(',', '|', $langs);
+        // Применяем преобразование, для строки с языками:
+        $langs = implode('|', $this->languages);
 
-            // Обходим массив правил и выполняем
-            // преобразования для новых правил:
-            $newRules = array();
+        // Обходим массив правил и выполняем
+        // преобразования для новых правил:
+        $newRules = array();
 
-            foreach ($this->rules as $rule => $p) {
-                $rule = ($rule[0] == '/'
-                    ? '/<' . $this->langParam . ':(' . $langs. ')>'
-                    : '<' . $this->langParam . ':(' . $langs . ')>/'
-                ) . $rule;
-                $newRules[$rule] = $p;
-            }
+        foreach ($this->rules as $rule => $p) {
+            $rule = ($rule[0] == '/'
+                ? '/<' . $this->langParam . ':(' . $langs. ')>'
+                : '<' . $this->langParam . ':(' . $langs . ')>/'
+            ) . $rule;
+            $newRules[$rule] = $p;
+        }
 
-            // Добавляем новые правила:
-            $this->rules = array_merge(
-                $newRules, $this->rules
-            );
+        // Добавляем новые правила:
+        $this->rules = array_merge(
+            $newRules, $this->rules
+        );
 
+        try {
             // Получаем ответ от parent::init()
             // для последующего возврата:
             $parentInit = parent::init();
@@ -74,11 +85,52 @@ class LangUrlManager extends CUrlManager
             // Запускаем процесс обработки правил
             // маршрутизации:
             $this->processRules();
-
-            return $parentInit;
+        } catch (Exception $e) {
+            Yii::app()->user->setFlash(
+                YFlashMessages::ERROR_MESSAGE,
+                $e->getMessage()
+            );
         }
 
-        return parent::init();
+        return isset($parentInit) ? $parentInit : null;
+    }
+
+    /**
+     * Получаем язык приложения:
+     * 
+     * @return string
+     */
+    public function getAppLang()
+    {
+        if ($this->_appLang === false) {
+            // Берём язык системы, иначе,
+            // если происходит ошибка
+            // берём сорсовый
+            try {
+                $this->_appLang = Yii::app()->getModule('yupe')->defaultLanguage
+                                ?: $this->_appLang = Yii::app()->sourceLanguage;
+            } catch (Exception $e) {
+                $this->_appLang = Yii::app()->sourceLanguage;
+            }
+        }
+
+        return $this->_appLang;
+    }
+
+    /**
+     * Метод получения списка системных языков
+     * 
+     * @return void
+     */
+    public function loadLangs()
+    {
+        if(empty($this->languages)) {
+            // Получаем из настроек доступные языки:
+            $this->langs = Yii::app()->getModule('yupe')->availableLanguages;
+
+            // Разделяем на массив и удаляем пустые элементы:
+            $this->languages = explode(",", $this->langs);
+        }
     }
 
     /**
@@ -95,6 +147,9 @@ class LangUrlManager extends CUrlManager
      */
     public function createUrl($route, $params = array(), $ampersand = '&')
     {
+        // Обновляем список языков, ведь он мог измениться:
+        $this->loadLangs();
+
         // Если используемых языков менее двух или параметр
         // $this->languages не массив языков, обработка не 
         // требуется
@@ -103,11 +158,13 @@ class LangUrlManager extends CUrlManager
         }
 
         // Если язык не указан - берем текущий
-        isset($params[$this->langParam]) or ($params[$this->langParam] = Yii::app()->language);
+        if(!isset($params[$this->langParam])) {
+            $params[$this->langParam] = Yii::app()->language;
+        }
 
         // Если указан "нативный" язык и к тому же он текущий,
         // то делаем URL без него, т.к. он соответсвует пустому пути:
-        if ((Yii::app()->sourceLanguage == $params[$this->langParam]) && ($params[$this->langParam] == Yii::app()->language)) {
+        if (($this->getAppLang() == $params[$this->langParam]) && ($params[$this->langParam] == Yii::app()->language)) {
             unset($params[$this->langParam]);
         }
 
@@ -131,7 +188,7 @@ class LangUrlManager extends CUrlManager
 
         // Убираем homeUrl из адреса:
         $url = preg_replace(
-            "#^(" . Yii::app()->request->scriptUrl . "|" . Yii::app()->request->baseUrl . ")#", '', $url
+            "#^(" . Yii::app()->getRequest()->scriptUrl . "|" . Yii::app()->getRequest()->baseUrl . ")#", '', $url
         );
         
         // Убираем из пути адреса языковой параметр

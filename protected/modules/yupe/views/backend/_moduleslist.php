@@ -13,30 +13,26 @@ if (count($modules)) :
     $updates = Yii::app()->migrator->checkForUpdates($modules);
 
     foreach ($modules as &$m) {
-
-        if ($m->canActivate() === false)
+        if ($m instanceof yupe\components\WebModule === false) {
             continue;
+        }
+
+        if ($m->canActivate() === false){
+            continue;
+        }
 
         if ($m->getIsActive() || $m->getIsNoDisable()) {
             $on[$m->id] = $m;
-            if (isset($updates[$m->id]))
+            if (isset($updates[$m->id])){
                 $has[$m->id] = $m;
+            }
         } else if ($m->getIsInstalled()) {
             $off[$m->id] = $m;
         } else {
             $dis[$m->id] = $m;
         }
     } ?>
-    <div class="page-header">
-    <h6>
-        <?php
-        echo Yii::t(
-            'YupeModule.yupe', 'Modules developed for "{app}"', array(
-                '{app}' => CHtml::encode(Yii::t('YupeModule.yupe', Yii::app()->name)),
-            )
-        ); ?>
-    </h6>
-    </div>
+
     <?php
     $tabs = array();
 
@@ -80,19 +76,19 @@ function moduleRow($module, &$updates, &$modules)
     <tr class="<?php echo ($module->getIsActive()) ? (is_array($module->checkSelf()) ? 'error' : '') : 'muted';?>">
         <td><?php echo $module->icon ? "<i class='icon-" . $module->getIcon() . "'>&nbsp;</i> " : ""; ?></td>
         <td>
-            <small class='label'><?php echo $module->getVersion();?></small>
-        </td>
-        <td>
-            <?php if ($module->isMultiLang()) : ?>
-                <i class="icon-globe" title="<?php echo Yii::t('YupeModule.yupe', 'Multilanguage module'); ?>"></i>
-            <?php endif; ?>
-        </td>
-        <td>
             <small style="font-size: 80%;"><?php echo Yii::t('YupeModule.yupe', $module->getCategory()); ?></small><br />
             <?php if ($module->getIsActive() || $module->getIsNoDisable()): ?>
                 <?php echo CHtml::link($module->getName() . ' <small>(' . $module->getId() . ')</small>', $module->getAdminPageLinkNormalize()); ?>
             <?php else: ?>
                 <span><?php echo $module->getName() . ' <small>(' . $module->getId() . ')</small>'; ?></span>
+            <?php endif; ?>
+        </td>
+        <td>
+            <small class='label'><?php echo $module->getVersion();?></small>
+        </td>
+        <td>
+            <?php if ($module->isMultiLang()) : ?>
+                <i class="icon-globe" title="<?php echo Yii::t('YupeModule.yupe', 'Multilanguage module'); ?>"></i>
             <?php endif; ?>
         </td>
         <td>
@@ -109,8 +105,6 @@ function moduleRow($module, &$updates, &$modules)
                 if ($module->getId() != 'yupe' && count($module->getDependencies()))
                 {
                     $deps = $module->getDependencies();
-                    foreach($deps as &$dep)
-                        $dep = $modules[$dep]->getName();
                     $tabs[] = array(
                         'label'   => Yii::t('YupeModule.yupe', 'Depends on'),
                         'content' => implode(', ', $deps),
@@ -124,16 +118,21 @@ function moduleRow($module, &$updates, &$modules)
                         'count'   => Yii::t('YupeModule.yupe', 'All'),
                     );
                 else
+                {
                     if(count($deps = $module->getDependent()))
                     {
-                        foreach($deps as &$dep)
-                            $dep = $modules[$dep]->getName();
+                        foreach($deps as $dep) {
+                            if (isset($modules[$dep]) && $modules[$dep] instanceof yupe\components\WebModule === false) {
+                                continue;
+                            }
+                        }
                         $tabs[] = array(
-                            'label'   => Yii::t('YupeModule.yupe', 'dependent'),
+                            'label'   => "<br />" . Yii::t('YupeModule.yupe', 'dependent'),
                             'content' => implode(', ', $deps),
                             'count'   => count($deps),
                         );
                     }
+                }
                 foreach ($tabs as $t)
                     echo $t['label'] . " " . CHtml::tag('span', array(
                         'class' => 'label label-info',
@@ -170,8 +169,9 @@ function moduleRow($module, &$updates, &$modules)
                         : CHtml::link('<i class="icon-download-alt" rel="tooltip" title="' . Yii::t('YupeModule.yupe', 'Install') . '">&nbsp;</i>', $url + array('status' => '1'), array_merge($htmlOptions, array('status' => 1, 'method' => 'install')))
                     );
 
-                if (isset($updates[$module->getId()]) && $module->getIsInstalled())
+                if (isset($updates[$module->getId()]) && $module->getIsInstalled()){
                     echo CHtml::link('<i class="icon-refresh" rel="tooltip" title="' . Yii::t('YupeModule.yupe', 'Have {n} DB updates!|Have {n} DB updates!|Have {n} DB updates!', count($updates[$module->getId()])) . '">&nbsp;</i>', array('/yupe/backend/modupdate', 'name' => $module->getId()));
+                }
                 if ($module->getIsActive() && $module->isConfigNeedUpdate())
                     echo CHtml::link('<i class="icon-repeat" rel="tooltip" title="' . Yii::t('YupeModule.yupe', 'Have configuration file updates!') . '">&nbsp;</i>', $url + array('status' => '2'), array_merge($htmlOptions, array('status' => 2, 'method' => 'update')));
                 ?>
@@ -189,9 +189,9 @@ function modulesTable($modules, &$updates, &$allmodules,&$controller)
         <thead>
         <tr>
             <th></th>
+            <th style="width: 150px;"><?php echo Yii::t('YupeModule.yupe', 'Name'); ?></th>
             <th style="width: 32px;"><?php echo Yii::t('YupeModule.yupe', 'Version'); ?></th>
             <th style="width: 32px;"></th>
-            <th style="width: 150px;"><?php echo Yii::t('YupeModule.yupe', 'Title'); ?></th>
             <th><?php echo Yii::t('YupeModule.yupe', 'Description'); ?></th>
             <th><?php echo Yii::t('YupeModule.yupe', 'Dependencies'); ?></th>
             <th></th>

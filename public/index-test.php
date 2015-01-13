@@ -14,9 +14,11 @@ if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');
 }
 
-// Во время тестирования нет необходимости использовать
-// кеширование настроек:
-defined('CACHE_SETTINGS') or define('CACHE_SETTINGS', false);
+// Setting internal encoding to UTF-8.
+if(!ini_get('mbstring.internal_encoding')) {
+    @ini_set("mbstring.internal_encoding", 'UTF-8');
+    mb_internal_encoding('UTF-8');
+}
 
 // Комментируем перед выпуском в продакшен:
 define('YII_DEBUG', true);
@@ -33,5 +35,7 @@ $userspace = file_exists($userspace) ? (require $userspace) : array();
 
 $confManager = new yupe\components\ConfigManager();
 $config = $confManager->merge($base, $userspace);
+
+require dirname(__FILE__).'/../vendor/autoload.php';
 
 Yii::createWebApplication($config)->run();

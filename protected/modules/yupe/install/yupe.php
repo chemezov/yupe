@@ -1,4 +1,15 @@
 <?php
+
+/**
+ * Файл конфигурации модуля
+ *
+ * @category YupeMigration
+ * @package  yupe.modules.user.install
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
+
 return array(
     'import' =>array(
         'application.modules.yupe.components.validators.*',
@@ -7,21 +18,22 @@ return array(
         'application.modules.yupe.helpers.*',
         'application.modules.yupe.models.*',
     ),
-    'cache'     => array(
-        'class' => 'CFileCache',
-        'behaviors' => array(
-            'clear' => array(
-                'class' => 'application.modules.yupe.extensions.tagcache.TaggingCacheBehavior',
+    'preload'   => array('log'),
+    'component' => array(
+        // Массив компонентов, которые требует данный модуль
+        // настройки кэширования, подробнее http://www.yiiframework.ru/doc/guide/ru/caching.overview
+        // конфигурирование memcache в юпи http://yupe.ru/docs/memcached.html
+        'cache' => array(
+            'class' => 'CFileCache',
+            'behaviors' => array(
+                'clear' => array(
+                    'class' => 'application.modules.yupe.extensions.tagcache.TaggingCacheBehavior',
+                ),
             ),
         ),
     ),
-    'preload'   => array('log'),
-    'component' => array(
-        // параметры подключения к базе данных, подробнее http://www.yiiframework.ru/doc/guide/ru/database.overview
-        'db' => require dirname(__FILE__) . '/../db.php',
-    ),
     'rules' => array(
-        '/yupe/backend/modulesettings/<module:\w+>' => 'yupe/backend/modulesettings',
+        '/backend/modulesettings/<module:\w+>' => 'yupe/backend/modulesettings',
     ),
     'module' => array(
         'components' => array(

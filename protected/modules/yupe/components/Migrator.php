@@ -3,7 +3,7 @@
  * Migrator class file.
  *
  * @category YupeComponent
- * @package  yupe
+ * @package  yupe.modules.yupe.components
  * @author   Alexander Tischenko <tsm@glavset.ru>
  * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
  * @version  0.5.3
@@ -267,7 +267,6 @@ class Migrator extends \CApplicationComponent
                     )
                 )
             );
-            return false;
         }
     }
 

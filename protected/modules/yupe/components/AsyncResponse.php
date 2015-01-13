@@ -16,7 +16,7 @@
  *                                         преобразованные в строку данные)
  *
  * @category YupeModule
- * @package  yupe
+ * @package  yupe.modules.yupe.components
  * @author   YupeTeam <team@yupe.ru>
  * @license  BSD http://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F_BSD
  * @link     http://yupe.ru
@@ -30,16 +30,34 @@ use Yii;
 
 class AsyncResponse extends CApplicationComponent
 {
+    /**
+     * @var bool
+     */
     public $success         = true;
+    /**
+     * @var bool
+     */
     public $failure         = false;
+    /**
+     * @var string
+     */
     public $resultParamName = 'result';
+    /**
+     * @var string
+     */
     public $dataParamName   = 'data';
 
+    /**
+     * @return bool
+     */
     public function init()
     {
         return true;
     }
 
+    /**
+     * @param null $data
+     */
     public function success($data = null)
     {
         ContentType::setHeader(ContentType::TYPE_JSON);
@@ -52,6 +70,9 @@ class AsyncResponse extends CApplicationComponent
         Yii::app()->end();
     }
 
+    /**
+     * @param null $data
+     */
     public function failure($data = null)
     {
         ContentType::setHeader(ContentType::TYPE_JSON);
@@ -64,6 +85,9 @@ class AsyncResponse extends CApplicationComponent
         Yii::app()->end();
     }
 
+    /**
+     * @param $data
+     */
     public function raw($data)
     {
         ContentType::setHeader(ContentType::TYPE_JSON);
@@ -72,6 +96,9 @@ class AsyncResponse extends CApplicationComponent
         Yii::app()->end();
     }
 
+    /**
+     * @param $data
+     */
     public function rawText($data)
     {
         echo $data;

@@ -30,14 +30,16 @@
  * @property Blog $blog
  * @property User $user
  */
-class UserToBlog extends YModel
+class UserToBlog extends yupe\models\YModel
 {
     const ROLE_USER      = 1;
     const ROLE_MODERATOR = 2;
     const ROLE_ADMIN     = 3;
 
-    const STATUS_ACTIVE = 1;
-    const STATUS_BLOCK  = 2;
+    const STATUS_ACTIVE  = 1;
+    const STATUS_BLOCK   = 2;
+    const STATUS_DELETED = 3;
+    const STATUS_CONFIRMATION = 4;
 
     /**
      * Returns the static model of the specified AR class.
@@ -69,8 +71,8 @@ class UserToBlog extends YModel
             array('role, status, user_id, blog_id, create_date, update_date', 'numerical', 'integerOnly' => true),
             array('user_id, blog_id, create_date, update_date, role, status', 'length', 'max' => 11),
             array('note', 'length', 'max' => 250),
-            array('role', 'in', 'range' => array_keys($this->roleList)),
-            array('status', 'in', 'range' => array_keys($this->statusList)),
+            array('role', 'in', 'range' => array_keys($this->getRoleList())),
+            array('status', 'in', 'range' => array_keys($this->getStatusList())),
             array('note', 'filter', 'filter' => array($obj = new CHtmlPurifier(), 'purify')),
             array('id, user_id, blog_id, create_date, update_date, role, status, note', 'safe', 'on' => 'search'),
         );
@@ -89,6 +91,20 @@ class UserToBlog extends YModel
         );
     }
 
+    public function afterSave()
+    {
+        Yii::app()->cache->delete("Blog::Blog::members::{$this->user_id}");
+
+        return parent::afterSave();
+    }
+
+    public function beforeDelete()
+    {
+        Yii::app()->cache->delete("Blog::Blog::members::{$this->user_id}");
+
+        return parent::beforeDelete();
+    }
+
     /**
      * @return array customized attribute labels (name=>label)
      */
@@ -96,8 +112,8 @@ class UserToBlog extends YModel
     {
         return array(
             'id'          => Yii::t('BlogModule.blog', 'id'),
-            'user_id'     => Yii::t('BlogModule.blog', 'User id'),
-            'blog_id'     => Yii::t('BlogModule.blog', 'Blog id'),
+            'user_id'     => Yii::t('BlogModule.blog', 'User'),
+            'blog_id'     => Yii::t('BlogModule.blog', 'Blog'),
             'create_date' => Yii::t('BlogModule.blog', 'Created at'),
             'update_date' => Yii::t('BlogModule.blog', 'Updated at'),
             'role'        => Yii::t('BlogModule.blog', 'Role'),
@@ -113,11 +129,11 @@ class UserToBlog extends YModel
     {
         return array(
             'id'      => Yii::t('BlogModule.blog', 'Member Id.'),
-            'user_id' => Yii::t('BlogModule.blog', 'Please choose user which will be member of blog'),
-            'blog_id' => Yii::t('BlogModule.blog', 'Please choose blog id.'),
-            'role'    => Yii::t('BlogModule.blog', 'Please choose user role:<br /><br /><span class="label label-success">User</span> &ndash; Can write and comment posts in blog.<br /><br /><span class="label label-warning">Moderator</span> &ndash; Can moderate (delete, edit, block) posts and comments, (ban, add, remove) members.<br /><br /><span class="label label-important">Administrator</span> &ndash; Can (block, add, remove) blogs and members.'),
-            'status'  => Yii::t('BlogModule.blog', 'Please choose status of member:<br /><br /><span class="label label-success">Active</span> &ndash; user will be active member of blog.<br /><br /><span class="label label-warning">blocked</span> &ndash; blog will be fobidden for user.'),
-            'note'    => Yii::t('BlogModule.blog', 'Small note about blog member.'),
+            'user_id' => Yii::t('BlogModule.blog', 'Please choose a user which will become the member of the blog'),
+            'blog_id' => Yii::t('BlogModule.blog', 'Please choose id of the blog.'),
+            'role'    => Yii::t('BlogModule.blog', 'Please choose user role:<br /><br /><span class="label label-success">User</span> &ndash; Can write and comment blog posts.<br /><br /><span class="label label-warning">Moderator</span> &ndash; Can delete, edit or block posts and comments. Can ban, add or remove members.<br /><br /><span class="label label-important">Administrator</span> &ndash; Can block, add or remove blogs and members.'),
+            'status'  => Yii::t('BlogModule.blog', 'Please choose status of the member:<br /><br /><span class="label label-success">Active</span> &ndash; Active member of the blog.<br /><br /><span class="label label-warning">blocked</span> &ndash; Cannot access the blog.'),
+            'note'    => Yii::t('BlogModule.blog', 'Short note about the blog member.'),
         );
     }
 
@@ -132,18 +148,25 @@ class UserToBlog extends YModel
 
         $criteria = new CDbCriteria;
 
-        $criteria->compare('t.id', $this->id, true);
-        $criteria->compare('user_id', $this->user_id, true);
-        $criteria->compare('blog_id', $this->blog_id, true);
-        $criteria->compare('create_date', $this->create_date, true);
-        $criteria->compare('update_date', $this->update_date, true);
+        $criteria->compare('t.id', $this->id);
+        $criteria->compare('user_id', $this->user_id);
+        $criteria->compare('blog_id', $this->blog_id);
+        if($this->create_date) {
+            $criteria->compare('DATE(from_unixtime(t.create_date))', date('Y-m-d', strtotime($this->create_date)));
+        }
+        $criteria->compare('update_date', $this->update_date);
         $criteria->compare('role', $this->role);
         $criteria->compare('t.status', $this->status);
-        $criteria->compare('note', $this->note, true);
+        $criteria->compare('note', $this->note);
 
         $criteria->with = array('user', 'blog');
 
-        return new CActiveDataProvider(get_class($this), array('criteria' => $criteria));
+        return new CActiveDataProvider(get_class($this), array(
+            'criteria' => $criteria,
+            'sort' => array(
+                'defaultOrder' => 't.id DESC'
+            )
+        ));
     }
 
     public function behaviors()
@@ -169,21 +192,46 @@ class UserToBlog extends YModel
 
     public function getRole()
     {
-        $data = $this->roleList;
+        $data = $this->getRoleList();
         return isset($data[$this->role]) ? $data[$this->role] : Yii::t('BlogModule.blog', '*unknown*');
     }
 
     public function getStatusList()
     {
         return array(
-            self::STATUS_ACTIVE => Yii::t('BlogModule.blog', 'Active'),
-            self::STATUS_BLOCK  => Yii::t('BlogModule.blog', 'Blocked'),
+            self::STATUS_ACTIVE   => Yii::t('BlogModule.blog', 'Active'),
+            self::STATUS_BLOCK    => Yii::t('BlogModule.blog', 'Blocked'),
+            self::STATUS_DELETED  => Yii::t('BlogModule.blog', 'Deleted'),
+            self::STATUS_CONFIRMATION => Yii::t('BlogModule.blog', 'Confirmation')
         );
     }
 
     public function getStatus()
     {
-        $data = $this->statusList;
+        $data = $this->getStatusList();
         return isset($data[$this->status]) ? $data[$this->status] : Yii::t('BlogModule.blog', '*unknown*');
     }
+
+    public function isDeleted()
+    {
+        return $this->status == self::STATUS_DELETED;
+    }
+
+    public function isActive()
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function isConfirmation()
+    {
+        return $this->status === self::STATUS_CONFIRMATION;
+    }
+
+    public function activate()
+    {
+        $this->status = self::STATUS_ACTIVE;
+
+        return $this;
+    }
+
 }

@@ -13,7 +13,7 @@
 
 <?php
 $this->breadcrumbs = array(
-    'Новости' => array('/news/news/index/'),
+    Yii::t('NewsModule.news', 'News') => array('/news/news/index/'),
     CHtml::encode($news->title)
 );
 ?>
@@ -26,6 +26,9 @@ $this->breadcrumbs = array(
     </div>
     <div class="row">
         <div class="span8">
+            <?php if($news->image):?>
+                <?php echo CHtml::image($news->getImageUrl(), $news->title);?>
+            <?php endif;?>
             <p> <?php echo $news->full_text; ?></p>
         </div>
     </div>

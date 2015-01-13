@@ -8,7 +8,7 @@ use \Codeception\Maybe;
 use Codeception\Module\Selenium2;
 use Codeception\Module\WebHelper;
 use Codeception\Module\WebDebug;
-use Codeception\Module\Db;
+use Codeception\Module\DbHelper;
 
 /**
  * Inherited methods
@@ -2438,6 +2438,27 @@ class WebGuy extends \Codeception\AbstractGuy
      */
     public function makeAResponseDump($name) {
         $this->scenario->addStep(new \Codeception\Step\Action('makeAResponseDump', func_get_args()));
+        if ($this->scenario->running()) {
+            $result = $this->scenario->runStep();
+            return new Maybe($result);
+        }
+        return new Maybe();
+    }
+
+ 
+    /**
+     * This method is generated.
+     * Documentation taken from corresponding module.
+     * ----------------------------------------------
+     *
+     * Gets Driver from Db module and adds some sugar.
+     * Yo ho ho !!! :D
+     * @return array dbConfig
+     * @see Codeception\Module\DbHelper::getDbConfig()
+     * @return \Codeception\Maybe
+     */
+    public function getDbConfig() {
+        $this->scenario->addStep(new \Codeception\Step\Action('getDbConfig', func_get_args()));
         if ($this->scenario->running()) {
             $result = $this->scenario->runStep();
             return new Maybe($result);

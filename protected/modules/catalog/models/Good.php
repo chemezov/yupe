@@ -1,6 +1,17 @@
 <?php
 
 /**
+ * Модель Catalog
+ *
+ * @author yupe team <team@yupe.ru>
+ * @link http://yupe.ru
+ * @copyright 2009-2013 amyLabs && Yupe! team
+ * @package yupe.modules.catalog.models
+ * @since 0.1
+ *
+ */
+
+/**
  * This is the model class for table "good".
  *
  * The followings are the available columns in table 'good':
@@ -25,7 +36,7 @@
  * @property Category $category
  * @property User $user
  */
-class Good extends YModel
+class Good extends yupe\models\YModel
 {
     const SPECIAL_NOT_ACTIVE = 0;
     const SPECIAL_ACTIVE     = 1;
@@ -69,7 +80,7 @@ class Good extends YModel
             array('alias', 'length', 'max' => 150),
             array('status','in','range' => array_keys($this->statusList)),
             array('is_special','in','range' => array(0, 1)),
-            array('alias', 'YSLugValidator', 'message' => Yii::t('CatalogModule.catalog', 'Illegal characters in {attribute}')),
+            array('alias', 'yupe\components\validators\YSLugValidator', 'message' => Yii::t('CatalogModule.catalog', 'Illegal characters in {attribute}')),
             array('alias', 'unique'),
             array('id, category_id, name, price, article, short_description, description, alias, data, status, create_time, update_time, user_id, change_user_id, is_special', 'safe', 'on' => 'search'),
         );
@@ -107,7 +118,7 @@ class Good extends YModel
         return array(
             'id'                => Yii::t('CatalogModule.catalog', 'ID'),
             'category_id'       => Yii::t('CatalogModule.catalog', 'Category'),
-            'name'              => Yii::t('CatalogModule.catalog', 'Title'),
+            'name'              => Yii::t('CatalogModule.catalog', 'Name'),
             'price'             => Yii::t('CatalogModule.catalog', 'Price'),
             'article'           => Yii::t('CatalogModule.catalog', 'Article'),
             'image'             => Yii::t('CatalogModule.catalog', 'Image'),
@@ -132,7 +143,7 @@ class Good extends YModel
         return array(
             'id'                => Yii::t('CatalogModule.catalog', 'ID'),
             'category_id'       => Yii::t('CatalogModule.catalog', 'Category'),
-            'name'              => Yii::t('CatalogModule.catalog', 'Title'),
+            'name'              => Yii::t('CatalogModule.catalog', 'Name'),
             'price'             => Yii::t('CatalogModule.catalog', 'Price'),
             'article'           => Yii::t('CatalogModule.catalog', 'Article'),
             'image'             => Yii::t('CatalogModule.catalog', 'Image'),
@@ -192,30 +203,34 @@ class Good extends YModel
                 'updateAttribute'   => 'update_time',
             ),
             'imageUpload' => array(
-                'class'         =>'application.modules.yupe.models.ImageUploadBehavior',
+                'class'         =>'yupe\components\behaviors\FileUploadBehavior',
                 'scenarios'     => array('insert','update'),
                 'attributeName' => 'image',
                 'minSize'       => $module->minSize,
                 'maxSize'       => $module->maxSize,
                 'types'         => $module->allowedExtensions,
-                'uploadPath'    => $module->getUploadPath(),
-                'resize' => array(
-                    'quality' => 70,
-                    'width' => 1024,
-                )
+                'uploadPath'    => $module->uploadPath,
+                'fileName' => array($this, 'generateFileName'),
             ),
         );
+    }
+
+    public function generateFileName()
+    {
+        return md5($this->name . microtime(true) . uniqid());
     }
 
     public function beforeValidate()
     {
         $this->change_user_id = Yii::app()->user->getId();
 
-        if ($this->isNewRecord)
+        if ($this->isNewRecord) {
             $this->user_id = $this->change_user_id;
+        }
 
-        if (!$this->alias)
-            $this->alias = YText::translit($this->name);
+        if (!$this->alias) {
+            $this->alias = yupe\helpers\YText::translit($this->name);
+        }
 
         return parent::beforeValidate();
     }
@@ -236,7 +251,7 @@ class Good extends YModel
 
     public function getStatus()
     {
-        $data = $this->statusList;
+        $data = $this->getStatusList();
         return isset($data[$this->status]) ? $data[$this->status] : Yii::t('CatalogModule.catalog', '*unknown*');
     }
 
@@ -250,18 +265,22 @@ class Good extends YModel
 
     public function getSpecial()
     {
-        $data = $this->specialList;
+        $data = $this->getSpecialList();
         return isset($data[$this->is_special]) ? $data[$this->is_special] : Yii::t('CatalogModule.catalog', '*unknown*');
     }
 
-    public function getImageUrl()
+    public function getImageUrl($width = 75, $height = 75)
     {
-        return ($this->image)
-            ? Yii::app()->baseUrl . '/' .
-              Yii::app()->getModule('yupe')->uploadPath . '/' .
-              Yii::app()->getModule('catalog')->uploadPath . '/' .
-              $this->image
-            : false;
+        if (false !== $this->image) {
+
+            $module = Yii::app()->getModule('catalog');
+
+            return Yii::app()->image->makeThumbnail(
+                $this->image, $module->uploadPath, $width, $height, \Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND
+            );
+        }
+
+        return false;
     }
 
     /**
@@ -272,7 +291,7 @@ class Good extends YModel
     public function getCategoryLink()
     {
         return $this->category instanceof Category
-            ? CHtml::link($this->category->name, array("/category/default/view", "id" => $this->id))
+            ? CHtml::link($this->category->name, array("/category/default/view", "id" => $this->category_id))
             : '---';
     }
 }

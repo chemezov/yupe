@@ -3,13 +3,20 @@
  * Класс экшена для генерации Feed-ленты:
  *
  * @category YupeAction
- * @package  yupe
+ * @package  yupe.modules.yupe.components.actions
  * @author   AKulikov <tuxuls@gmail.com>
  * @license  BSD http://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F_BSD
  * @version  0.1
  * @link     http://yupe.ru
  *
  **/
+namespace yupe\components\actions;
+
+use CAction;
+use Yii;
+use EFeed;
+use DateTime;
+
 class YFeedAction extends CAction
 {
     /**
@@ -21,14 +28,14 @@ class YFeedAction extends CAction
      *     {
      *         return array(
      *             'atomfeed' => array(
-     *                 'class'        => 'application.modules.yupe.components.actions.YFeedAction',
+     *                 'class'        => 'yupe\components\actions\YFeedAction',
      *                 'data'         => News::model()->published()->findAll(),
      *                 // Параметр title по умолчанию берётся из настроек приложения
      *                 //'title'        => Yii::t('YupeModule.yupe', 'Site title'),
      *                 // Параметр description по умолчанию берётся из настроек приложения
      *                 //'description'  => Yii::t('YupeModule.yupe', 'News list'),
-     *                 // Параметр link по умолчанию берётся как Yii::app()->request->getBaseUrl(true)
-     *                 //'link' => Yii::app()->request->getBaseUrl(true),
+     *                 // Параметр link по умолчанию берётся как Yii::app()->getRequest()->getBaseUrl(true)
+     *                 //'link' => Yii::app()->getRequest()->getBaseUrl(true),
      *                 'itemFields'   => array(
      *                     // author_object, если не задан - у
      *                     // item-елемента запросится author_nickname
@@ -101,7 +108,7 @@ class YFeedAction extends CAction
          * Опеределяем link для ленты:
          */
         $this->link = empty($this->link)
-            ? Yii::app()->request->getBaseUrl('true')
+            ? Yii::app()->getRequest()->getBaseUrl('true')
             : $this->link;
 
         /**

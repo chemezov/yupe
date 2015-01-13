@@ -1,9 +1,9 @@
 <?php
 /**
- * Содержит общие функции для панели управления и фронтенда
+ * Общий контроллер для панели управления и фронтенда
  *
  * @category YupeComponents
- * @package  yupe
+ * @package  yupe.modules.yupe.components.controllers
  * @author   aopeykin <aopeykin@yandex.ru>
  * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
  * @version  0.6
@@ -16,10 +16,18 @@ use yupe\components\ContentType;
 use CHtml;
 use Yii;
 use CException;
+use CHttpException;
 
 class Controller extends \CController
 {
+    /**
+     * @var
+     */
     public $yupe;
+
+    /**
+     * @var
+     */
     public $layout;
 
     /**
@@ -165,6 +173,31 @@ class Controller extends \CController
     {
         ContentType::setHeader($this->headerTypeId);
         return parent::processOutput($output);
+    }
+
+    /**
+     * Если вызван ошибочный запрос:
+     *
+     * @param string  $message - сообщение
+     * @param integer $error   - код ошибки
+     * 
+     * @return void
+     */
+    protected function badRequest($message = null, $error = 400)
+    {
+        // Если сообщение не установленно - выставляем
+        // дефолтное
+        $message = $message
+                    ?: Yii::t(
+                        'YupeModule.yupe',
+                        'Bad request. Please don\'t use similar requests anymore!'
+                    );
+
+        if (Yii::app()->getRequest()->getIsAjaxRequest() === true) {
+            return Yii::app()->ajax->failure($message);
+        }
+
+        throw new CHttpException($error, $message);
     }
 
     /**

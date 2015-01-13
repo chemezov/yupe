@@ -1,8 +1,18 @@
 <?php
+/**
+ * Форма для запроса смены пароля
+ *
+ * @category YupeComponents
+ * @package  yupe.modules.user.forms
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD http://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F_BSD
+ * @version  0.5.3
+ * @link     http://yupe.ru
+ *
+ **/
 class RecoveryForm extends CFormModel
 {
     public $email;
-    private $_user;
 
     public function rules()
     {
@@ -15,16 +25,23 @@ class RecoveryForm extends CFormModel
 
     public function checkEmail($attribute, $params)
     {
-        if (!$this->hasErrors())
-        {
-            $this->_user = User::model()->active()->find('email = :email', array(':email' => $this->$attribute));
-            if (!$this->_user)
-                $this->addError('email', Yii::t('UserModule.user', 'Email "{email}" was not found or user was blocked !', array('{email}' => $this->email)));
-        }
-    }
+        if ($this->hasErrors() === false) {
+            $user = User::model()->active()->find(
+                'email = :email', array(
+                    ':email' => $this->$attribute
+                )
+            );
 
-    public function getUser()
-    {
-        return $this->_user;
+            if ($user === null) {
+                $this->addError(
+                    '',
+                    Yii::t(
+                        'UserModule.user', 'Email "{email}" was not found or user was blocked !', array(
+                            '{email}' => $this->email
+                        )
+                    )
+                );
+            }
+        }
     }
 }

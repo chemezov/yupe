@@ -14,11 +14,12 @@ use yupe\components\WebModule;
 
 class CatalogModule extends WebModule
 {
-    public $mainCategory;
+    const VERSION = '0.7';
+
     public $uploadPath        = 'catalog';
     public $allowedExtensions = 'jpg,jpeg,png,gif';
     public $minSize           = 0;
-    public $maxSize;
+    public $maxSize           = 5242880;
     public $maxFiles          = 1;
 
     public function getDependencies()
@@ -29,23 +30,16 @@ class CatalogModule extends WebModule
         );
     }
 
-    public function getUploadPath()
-    {
-        return  Yii::getPathOfAlias('webroot') . '/' .
-                Yii::app()->getModule('yupe')->uploadPath . '/' .
-                $this->uploadPath . '/';
-    }
-
     public function checkSelf()
     {
         $messages = array();
 
-        $uploadPath = $this->getUploadPath();
+        $uploadPath = Yii::app()->uploadManager->getBasePath() . DIRECTORY_SEPARATOR . $this->uploadPath;
 
         if (!is_writable($uploadPath))
             $messages[WebModule::CHECK_ERROR][] =  array(
                 'type'    => WebModule::CHECK_ERROR,
-                'message' => Yii::t('CatalogModule.catalog', 'Directory "{dir}" is not accessible for write! {link}', array(
+                'message' => Yii::t('CatalogModule.catalog', 'Directory "{dir}" is not writeable! {link}', array(
                     '{dir}'  => $uploadPath,
                     '{link}' => CHtml::link(Yii::t('CatalogModule.catalog', 'Change settings'), array(
                         '/yupe/backend/modulesettings/',
@@ -59,8 +53,9 @@ class CatalogModule extends WebModule
 
     public function getInstall()
     {
-        if(parent::getInstall())
-            @mkdir($this->getUploadPath(),0755);
+        if (parent::getInstall()) {
+            @mkdir(Yii::app()->uploadManager->getBasePath() . DIRECTORY_SEPARATOR . $this->uploadPath, 0755);
+        }
 
         return false;
     }
@@ -83,7 +78,7 @@ class CatalogModule extends WebModule
         return array(
             'mainCategory'      => Yii::t('CatalogModule.catalog', 'Main category of products'),
             'adminMenuOrder'    => Yii::t('CatalogModule.catalog', 'Menu items order'),
-            'uploadPath'        => Yii::t('CatalogModule.catalog', 'Catalog for file uploads (relatively Yii::app()->getModule("yupe")->uploadPath)'),
+            'uploadPath'        => Yii::t('CatalogModule.catalog', 'File uploads directory (relative to {dir})', array('{dir}' => Yii::app()->getModule("yupe")->uploadPath)),
             'editor'            => Yii::t('CatalogModule.catalog', 'Visual editor'),
             'allowedExtensions' => Yii::t('CatalogModule.catalog', 'Accepted extensions (separated by comma)'),
             'minSize'           => Yii::t('CatalogModule.catalog', 'Minimum size (in bytes)'),
@@ -94,19 +89,20 @@ class CatalogModule extends WebModule
     public function getNavigation()
     {
         return array(
-            array('icon' => 'list-alt', 'label' => Yii::t('CatalogModule.catalog', 'Products list'), 'url' => array('/catalog/default/index')),
-            array('icon' => 'plus-sign', 'label' => Yii::t('CatalogModule.catalog', 'Add product'), 'url' => array('/catalog/default/create')),
+            array('icon' => 'list-alt', 'label' => Yii::t('CatalogModule.catalog', 'Product list'), 'url' => array('/catalog/catalogBackend/index')),
+            array('icon' => 'plus-sign', 'label' => Yii::t('CatalogModule.catalog', 'Add a product'), 'url' => array('/catalog/catalogBackend/create')),
+            array('icon' => 'icon-folder-open', 'label' => Yii::t('CatalogModule.catalog', 'Goods categories'), 'url' => array('/category/categoryBackend/index', 'Category[parent_id]' => (int)$this->mainCategory)),
         );
     }
 
     public function getAdminPageLink()
     {
-        return '/catalog/default/index';
+        return '/catalog/catalogBackend/index';
     }
     
     public function getVersion()
     {
-        return Yii::t('CatalogModule.catalog', '0.2');
+        return self::VERSION;
     }
 
     public function getCategory()
@@ -116,12 +112,12 @@ class CatalogModule extends WebModule
 
     public function getName()
     {
-        return Yii::t('CatalogModule.catalog', 'Products catalog');
+        return Yii::t('CatalogModule.catalog', 'Product catalog');
     }
 
     public function getDescription()
     {
-        return Yii::t('CatalogModule.catalog', 'Module for creating simple products catalog');
+        return Yii::t('CatalogModule.catalog', 'This module allows creating a simple product catalog');
     }
 
     public function getAuthor()
@@ -151,20 +147,6 @@ class CatalogModule extends WebModule
         $this->setImport(array(
             'catalog.models.*',
             'catalog.components.*',
-            //'category.models.*',
         ));
-    }
-
-    public function getCategoryList()
-    {
-        $criteria = ($this->mainCategory)
-            ? array(
-                'condition' => 'id = :id OR parent_id = :id',
-                'params'    => array(':id' => $this->mainCategory),
-                'order'     => 'id ASC',
-            )
-            : array();
-
-        return Category::model()->findAll($criteria);
-    }
+    }  
 }

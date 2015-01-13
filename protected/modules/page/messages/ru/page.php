@@ -17,6 +17,13 @@
  * NOTE, this file must be saved in UTF-8 encoding.
  */
 return array (
+  'Page view' => 'Представление (view)',
+  'View' => 'Представление (view)',
+  'More options' => 'Дополнительные параметры',
+  'Pages categories' => 'Категории Страниц',
+  'Delete' => 'Удалить',
+  'Do you really want to delete selected elements?' => 'Вы уверены, что хотите удалить выбранные элементы?',
+  'Layout' => 'Шаблон',
   '*unknown*' => '*неизвестно*',
   '- no matter -' => '- не важно -',
   '- not set -' => '- не выбрана -',
@@ -89,7 +96,7 @@ return array (
   'Created by' => 'Создал',
   'Created at' => 'Создано',
   'Sorting' => 'Сортировка',
-  'Save page nad close' => 'Сохранить страницу и закрыть',
+  'Save page and close' => 'Сохранить страницу и закрыть',
   'Save page and continue' => 'Сохранить страницу и продолжить',
   'List' => 'Список',
   'Pages list' => 'Список страниц',
@@ -116,4 +123,6 @@ return array (
   'no' => 'нет',
   'are required.' => 'обязательны.',
   'manage' => 'управление',
+  'Removed' => 'Удален',
+  'Select {field}' => 'Выберите {field}',
 );

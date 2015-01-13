@@ -13,11 +13,15 @@ body {
 }
 div#page {
     padding-top: 50px;
-    padding-bottom: 50px;
+    padding-bottom: 10px;
 }
 
 #page [class*='icon-'] {
     color: #333;
+}
+
+#page [class*='icon-'].icon-white {
+    color: #fff;
 }
 
 #page a:hover [class*='icon-'] {
@@ -31,10 +35,10 @@ div#page {
 
 #overall-wrap {
     min-height: 100%;
-    margin: 0 auto -141px;
+    margin: 0 auto -93px;
 }
 .navbar-fixed-top {
-    border-bottom: 5px solid #FF9600;
+    border-bottom: 1px solid #FF9600;
     min-width: 960px !important;
 }
 footer {
@@ -42,7 +46,7 @@ footer {
     text-align: center;
 
     height: 75px;
-    padding: 20px 0px 45px;
+    padding: 12px 0 15px;
 
     border-top: 1px solid #E5E5E5;
 
@@ -66,7 +70,7 @@ footer {
 .wide select {
     width: 100% !important;
 }
-.wide input[type=text].not([class*="span"]),
+.wide input[type=text]:not([class*="span"]),
 .wide textarea {
     width: 99% !important;
 }
@@ -76,7 +80,7 @@ footer {
 .table-vmiddle td {
     vertical-align: middle;
 }
-/* ������ ������� */
+
 .sidebar-nav {
     padding: 9px 0;
 }
@@ -115,8 +119,8 @@ footer {
     background-color: #08C;
 }
 .dropdown .dropdown-menu .nav-header {
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 0;
+    margin-right: 0;
 }
 pre .label{
     white-space: normal !important;
@@ -144,4 +148,17 @@ pre .label{
     margin-right: 10px;
     border: none;
     display: block;
+}
+
+.well .form-actions {
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.table .button-column {
+	white-space: nowrap;
+}
+
+.module-errors-accordion .alert {
+	margin-bottom: 0;
 }

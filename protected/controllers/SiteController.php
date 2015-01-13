@@ -10,7 +10,11 @@
  * @link     http://yupe.ru
  *
  **/
-class SiteController extends yupe\components\controllers\FrontController
+namespace application\controllers;
+
+use application\components\Controller;
+
+class SiteController extends Controller
 {
     const POST_PER_PAGE = 5;
 
@@ -19,10 +23,9 @@ class SiteController extends yupe\components\controllers\FrontController
         $this->render('modern');
     }
 
-
     /**
      * Отображение главной страницы
-     * 
+     *
      * @return void
      */
     public function actionIndex()
@@ -37,20 +40,15 @@ class SiteController extends yupe\components\controllers\FrontController
      */
     public function actionError()
     {
-        $error = Yii::app()->errorHandler->error;
+        $error = \Yii::app()->errorHandler->error;
 
         if (empty($error) || !isset($error['code']) || !(isset($error['message']) || isset($error['msg']))) {
             $this->redirect(array('index'));
         }
 
-        if (Yii::app()->request->isAjaxRequest) {
-            echo json_encode(
-                $error
-            );
-        } else {            
-            $this->render(
-                'error',
-                array(
+        if (!\Yii::app()->getRequest()->getIsAjaxRequest()) {
+
+            $this->render('error', array(
                     'error' => $error
                 )
             );
@@ -60,14 +58,15 @@ class SiteController extends yupe\components\controllers\FrontController
 
     public function actionMain()
     {
-        $dataProvider = new CActiveDataProvider('Post', array(
-            'criteria' => new CDbCriteria(array(
-                'condition' => 't.status = :status',
-                'params'    => array(':status' => Post::STATUS_PUBLISHED),
-                'limit'     => self::POST_PER_PAGE,
-                'order'     => 't.id DESC',
-                'with'      => array('createUser', 'blog','commentsCount'),
-            )),
+        $dataProvider = new \CActiveDataProvider('Post', array(
+
+            'criteria' => new \CDbCriteria(array(
+                    'condition' => 't.status = :status',
+                    'params' => array(':status' => \Post::STATUS_PUBLISHED),
+                    'limit' => self::POST_PER_PAGE,
+                    'order' => 't.id DESC',
+                    'with' => array('createUser', 'blog', 'commentsCount'),
+                )),
         ));
 
         $this->render('main', array('dataProvider' => $dataProvider));

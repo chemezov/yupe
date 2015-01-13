@@ -28,7 +28,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
      *
      * @param integer $id Идинтификатор <?php echo $this->vin; ?> для отображения
      *
-     * @return nothing
+     * @return void
      */
     public function actionView($id)
     {
@@ -39,7 +39,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
      * Создает новую модель <?php echo $this->rod; ?>.
      * Если создание прошло успешно - перенаправляет на просмотр.
      *
-     * @return nothing
+     * @return void
      */
     public function actionCreate()
     {
@@ -53,7 +53,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 
             if ($model->save()) {
                 Yii::app()->user->setFlash(
-                    YFlashMessages::NOTICE_MESSAGE,
+                    yupe\widgets\YFlashMessages::SUCCESS_MESSAGE,
                     Yii::t('<?php echo $this->mid;?>', 'Запись добавлена!')
                 );
 
@@ -71,7 +71,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
      *
      * @param integer $id Идинтификатор <?php echo $this->vin; ?> для редактирования
      *
-     * @return nothing
+     * @return void
      */
     public function actionUpdate($id)
     {
@@ -85,7 +85,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 
             if ($model->save()) {
                 Yii::app()->user->setFlash(
-                    YFlashMessages::NOTICE_MESSAGE,
+                    yupe\widgets\YFlashMessages::SUCCESS_MESSAGE,
                     Yii::t('<?php echo $this->mid; ?>', 'Запись обновлена!')
                 );
 
@@ -104,17 +104,17 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
      *
      * @param integer $id идентификатор <?php echo $this->rod; ?>, который нужно удалить
      *
-     * @return nothing
+     * @return void
      */
     public function actionDelete($id)
     {
-        if (Yii::app()->request->isPostRequest)
+        if (Yii::app()->getRequest()->getIsPostRequest())
         {
             // поддерживаем удаление только из POST-запроса
             $this->loadModel($id)->delete();
 
             Yii::app()->user->setFlash(
-                YFlashMessages::NOTICE_MESSAGE,
+                yupe\widgets\YFlashMessages::SUCCESS_MESSAGE,
                 Yii::t('<?php echo $this->mid; ?>', 'Запись удалена!')
             );
 
@@ -129,7 +129,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
     /**
      * Управление <?php echo $this->mtvor; ?>.
      *
-     * @return nothing
+     * @return void
      */
     public function actionIndex()
     {
@@ -146,7 +146,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
      *
      * @param integer идентификатор нужной модели
      *
-     * @return nothing
+     * @return void
      */
     public function loadModel($id)
     {
@@ -161,9 +161,9 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
      *
      * @param CModel модель, которую необходимо валидировать
      *
-     * @return nothing
+     * @return void
      */
-    protected function performAjaxValidation($model)
+    protected function performAjaxValidation(<?php echo $this->modelClass; ?> $model)
     {
         if (isset($_POST['ajax']) && $_POST['ajax'] === '<?php echo $this->class2id($this->modelClass); ?>-form') {
             echo CActiveForm::validate($model);

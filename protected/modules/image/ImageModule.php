@@ -15,30 +15,30 @@ use yupe\components\WebModule;
 
 class ImageModule extends WebModule
 {
-    public $uploadPath        = 'image';
+    const VERSION = '0.7';
+
+    public $uploadPath = 'image';
     public $documentRoot;
     public $allowedExtensions = 'jpg,jpeg,png,gif';
-    public $minSize           = 0;
-    public $maxSize           = 5242880 /* 5 MB */;
-    public $maxFiles          = 1;
+    public $minSize = 0;
+    public $maxSize = 5242880 /* 5 MB */
+    ;
+    public $maxFiles = 1;
     public $types;
-
-    public $mainCategory;
-
-    public function getInstall()
-    {
-        if(parent::getInstall()) {
-            @mkdir($this->getUploadPath(),0755);
-        }
-
-        return false;
-    }
+    public $mimeTypes = 'image/gif, image/jpeg, image/png';
 
     public function getUploadPath()
     {
-        return  Yii::getPathOfAlias('webroot') . '/' .
-            Yii::app()->getModule('yupe')->uploadPath . '/' .
-            $this->uploadPath . '/';
+        return Yii::app()->uploadManager->getBasePath() . DIRECTORY_SEPARATOR . $this->uploadPath;
+    }
+
+    public function getInstall()
+    {
+        if (parent::getInstall()) {
+            @mkdir($this->getUploadPath(), 0755);
+        }
+
+        return false;
     }
 
     public function getDependencies()
@@ -48,24 +48,25 @@ class ImageModule extends WebModule
         );
     }
 
-    public  function getVersion()
+    public function getVersion()
     {
-        return Yii::t('ImageModule.image', '0.4');
+        return self::VERSION;
     }
 
     public function getIcon()
     {
-        return "picture";
+        return "picture-o";
     }
 
     public function getParamsLabels()
     {
         return array(
-            'mainCategory'      => Yii::t('ImageModule.image','Main images category'),
-            'uploadPath'        => Yii::t('ImageModule.image', 'Directory for uploading images'),
+            'mainCategory' => Yii::t('ImageModule.image', 'Main images category'),
+            'uploadPath' => Yii::t('ImageModule.image', 'Directory for uploading images'),
             'allowedExtensions' => Yii::t('ImageModule.image', 'Allowed extensions (separated by comma)'),
-            'minSize'           => Yii::t('ImageModule.image', 'Minimum size (in bytes)'),
-            'maxSize'           => Yii::t('ImageModule.image', 'Maximum size (in bytes)'),
+            'minSize' => Yii::t('ImageModule.image', 'Minimum size (in bytes)'),
+            'maxSize' => Yii::t('ImageModule.image', 'Maximum size (in bytes)'),
+            'mimeTypes' => Yii::t('ImageModule.image', 'Mime types')
         );
     }
 
@@ -76,58 +77,92 @@ class ImageModule extends WebModule
             'allowedExtensions',
             'minSize',
             'maxSize',
-            'mainCategory' => CHtml::listData($this->getCategoryList(),'id','name'),
+            'mainCategory' => CHtml::listData($this->getCategoryList(), 'id', 'name'),
+            'mimeTypes'
         );
     }
 
-    public function createUploadDir()
+    public function getEditableParamsGroups()
     {
-        $current = '/' . date('Y/m/d');
-        $dirName = $this->getUploadPath() . $current;
-
-        if (is_dir($dirName))
-            return $current;
-
-        return @mkdir($dirName, 0700, true) ? $current : false;
+        return array(
+            'main' => array(
+                'label' => Yii::t('ImageModule.image', 'General module settings'),
+                'items' => array(
+                    'allowedExtensions',
+                    'mimeTypes',
+                    'minSize',
+                    'maxSize',
+                    'uploadPath',
+                    'mainCategory'
+                )
+            )
+        );
     }
 
     public function checkSelf()
     {
         $messages = array();
 
-        if (!$this->uploadPath)
-             $messages[WebModule::CHECK_ERROR][] = array(
-                'type'    => WebModule::CHECK_ERROR,
-                'message' => Yii::t('ImageModule.image', 'Please, choose catalog for images! {link}', array(
-                    '{link}' => CHtml::link(Yii::t('ImageModule.image', 'Change module settings'), array(
-                        '/yupe/backend/modulesettings/',
-                        'module' => $this->id,
-                     )),
-                )),
-            );
+        $uploadPath = Yii::app()->uploadManager->getBasePath() . DIRECTORY_SEPARATOR . $this->uploadPath;
 
-        if (!is_dir($this->getUploadPath()) || !is_writable($this->getUploadPath()))
+        if (!$uploadPath) {
             $messages[WebModule::CHECK_ERROR][] = array(
-                'type'    => WebModule::CHECK_ERROR,
-                'message' => Yii::t('ImageModule.image', 'Directory "{dir}" is not accessible for writing ot not exists! {link}', array(
-                    '{dir}' => $this->getUploadPath(),
-                    '{link}' => CHtml::link(Yii::t('ImageModule.image', 'Change module settings'), array(
-                        '/yupe/backend/modulesettings/',
-                        'module' => $this->id,
-                    )),
-                )),
+                'type' => WebModule::CHECK_ERROR,
+                'message' => Yii::t(
+                        'ImageModule.image',
+                        'Please, choose catalog for images! {link}',
+                        array(
+                            '{link}' => CHtml::link(
+                                    Yii::t('ImageModule.image', 'Change module settings'),
+                                    array(
+                                        '/yupe/backend/modulesettings/',
+                                        'module' => $this->id,
+                                    )
+                                ),
+                        )
+                    ),
             );
+        }
 
-        if (!$this->maxSize || $this->maxSize <= 0)
+        if (!is_dir($uploadPath) || !is_writable($uploadPath)) {
             $messages[WebModule::CHECK_ERROR][] = array(
-                'type'    => WebModule::CHECK_ERROR,
-                'message' => Yii::t('ImageModule.image', 'Set maximum images size {link}', array(
-                    '{link}' => CHtml::link(Yii::t('ImageModule.image', 'Change module settings'), array(
-                        '/yupe/backend/modulesettings/',
-                        'module' => $this->id,
-                     )),
-                 )),
+                'type' => WebModule::CHECK_ERROR,
+                'message' => Yii::t(
+                        'ImageModule.image',
+                        'Directory "{dir}" is not accessible for writing ot not exists! {link}',
+                        array(
+                            '{dir}' => $uploadPath,
+                            '{link}' => CHtml::link(
+                                    Yii::t('ImageModule.image', 'Change module settings'),
+                                    array(
+                                        '/yupe/backend/modulesettings/',
+                                        'module' => $this->id,
+                                    )
+                                ),
+                        )
+                    ),
             );
+        }
+
+        if (!$this->maxSize || $this->maxSize <= 0) {
+            $messages[WebModule::CHECK_ERROR][] = array(
+                'type' => WebModule::CHECK_ERROR,
+                'message' => Yii::t(
+                        'ImageModule.image',
+                        'Set maximum images size {link}',
+                        array(
+                            '{link}' => CHtml::link(
+                                    Yii::t('ImageModule.image', 'Change module settings'),
+                                    array(
+                                        '/yupe/backend/modulesettings/',
+                                        'module' => $this->id,
+                                    )
+                                ),
+                        )
+                    ),
+            );
+        }
+
         return (isset($messages[WebModule::CHECK_ERROR])) ? $messages : true;
     }
 
@@ -169,39 +204,40 @@ class ImageModule extends WebModule
 
         $forImport = array();
 
-        if (Yii::app()->hasModule('gallery'))
+        if (Yii::app()->hasModule('gallery')) {
             $forImport[] = 'gallery.models.*';
+        }
 
         $this->setImport(
             array_merge(
                 array(
-                    'image.models.*',
-                    'image.components.*',
-                ), $forImport
+                    'image.models.*'
+                ),
+                $forImport
             )
         );
-    }
-
-    public function getCategoryList()
-    {
-        $criteria = array();
-
-        if ($this->mainCategory)
-            $criteria = array(
-                'condition' => 'id = :id OR parent_id = :id',
-                'params'    => array(':id' => $this->mainCategory),
-                'order'     => 'id ASC',
-            );
-
-        return Category::model()->findAll($criteria);
     }
 
     public function getNavigation()
     {
         return array(
-            array('icon' => 'list-alt', 'label' => Yii::t('ImageModule.image', 'Images list'), 'url' => array('/image/default/index')),
-            array('icon' => 'plus-sign', 'label' => Yii::t('ImageModule.image', 'Add image'), 'url' => array('/image/default/create')),
+            array(
+                'icon' => 'list-alt',
+                'label' => Yii::t('ImageModule.image', 'Images list'),
+                'url' => array('/image/imageBackend/index')
+            ),
+            array(
+                'icon' => 'plus-sign',
+                'label' => Yii::t('ImageModule.image', 'Add image'),
+                'url' => array('/image/imageBackend/create')
+            ),
+            array('icon' => 'icon-folder-open', 'label' => Yii::t('ImageModule.image', 'Images categories'), 'url' => array('/category/categoryBackend/index', 'Category[parent_id]' => (int)$this->mainCategory)),
         );
+    }
+
+    public function getAdminPageLink()
+    {
+        return '/image/imageBackend/index';
     }
 
     /**

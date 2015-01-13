@@ -17,20 +17,21 @@
 
 $this->widget(
     'bootstrap.widgets.TbNavbar', array(
-        'htmlOptions' => array('class' => 'navbar-inverse'),
+        'htmlOptions' => array('class' => 'navbar navbar-fixed-top'),
         'fluid'       => true,
+        'collapse'    => true,
         'brand'       => CHtml::image(
-            Yii::app()->baseUrl . "/web/images/logo.png", Yii::app()->name, array(
+            Yii::app()->getModule('yupe')->getLogo(), CHtml::encode(Yii::app()->name), array(
                 'width'  => '38',
                 'height' => '38',
-                'title'  => Yii::app()->name,
+                'title'  => CHtml::encode(Yii::app()->name),
             )
         ),
         'brandUrl'    => CHtml::normalizeUrl(array("/yupe/backend/index")),
         'items'       => array(
             array(
                 'class' => 'bootstrap.widgets.TbMenu',
-                'items' => $this->controller->yupe->getModules(true),
+                'items' => Yii::app()->moduleManager->getModules(true),
             ),
             array(
                 'class'       => 'bootstrap.widgets.TbMenu',
@@ -39,7 +40,7 @@ $this->widget(
                 'items'       => array_merge(
                     array(
                         array(
-                            'icon'  => 'question-sign white',
+                            'icon'  => 'question-sign',
                             'label' => Yii::t('YupeModule.yupe', 'Help'),
                             'url'   => CHtml::normalizeUrl(array('/yupe/backend/help')),
                             'items' => array(
@@ -68,6 +69,12 @@ $this->widget(
                                     'linkOptions' => array('target' => '_blank'),
                                 ),
                                 array(
+                                    'icon'  => 'icon-comment',
+                                    'label' => Yii::t('YupeModule.yupe', 'Chat'),
+                                    'url'   => 'http://gitter.im/yupe/yupe',
+                                    'linkOptions' => array('target' => '_blank'),
+                                ),
+                                array(
                                     'icon'  => 'icon-globe',
                                     'label' => Yii::t('YupeModule.yupe', 'Community on github'),
                                     'url'   => 'https://github.com/yupe/yupe',
@@ -76,7 +83,7 @@ $this->widget(
                                 array(
                                     'icon'  => 'icon-thumbs-up',
                                     'label' => Yii::t('YupeModule.yupe', 'Order development and support'),
-                                    'url'   => 'http://yupe.ru/feedback/index?from=help-support',
+                                    'url'   => 'http://amylabs.ru/contact?from=help-support',
                                     'linkOptions' => array('target' => '_blank'),
                                 ),
                                 array(
@@ -93,24 +100,23 @@ $this->widget(
                             )
                         ),
                         array(
-                            'icon'        => 'home white',
+                            'icon'        => 'home',
                             'label'       => Yii::t('YupeModule.yupe', 'Go home'),
-                            'linkOptions' => array('target' => '_blank'),
-                            'visible'     => Yii::app()->controller instanceof yupe\components\controllers\BackController === true,
-                            'url'         => array('/' . Yii::app()->defaultController . '/index/'),
+                            'visible'     => Yii::app()->getController() instanceof yupe\components\controllers\BackController === true,
+                            'url'         => Yii::app()->createAbsoluteUrl('/')
                         ),
                         array(
                             'label'       => '
                                 <div style="float: left; line-height: 16px; text-align: center; margin-top: -10px;">
                                     <small style="font-size: 80%;">' . Yii::t('YupeModule.yupe', 'Administrator') . '</small><br />
-                                    <span class="label">' . Yii::app()->user->nick_name . '</span>
+                                    <span class="label">' . CHtml::encode(Yii::app()->getUser()->nick_name) . '</span>
                                 </div>',
                             'encodeLabel' => false,
                             'items'       => array(
                                 array(
                                     'icon'  => 'user',
                                     'label' => Yii::t('YupeModule.yupe', 'Profile'),
-                                    'url'   => CHtml::normalizeUrl((array('/user/default/update', 'id' => Yii::app()->user->getId()))),
+                                    'url'   => CHtml::normalizeUrl((array('/user/userBackend/update', 'id' => Yii::app()->getUser()->getId()))),
                                 ),
                                 array(
                                     'icon'  => 'off',
@@ -119,7 +125,7 @@ $this->widget(
                                 ),
                             ),
                         ),
-                    ), $this->controller->yupe->languageSelectorArray
+                    ), $this->controller->yupe->getLanguageSelectorArray()
                 ),
             ),
         ),

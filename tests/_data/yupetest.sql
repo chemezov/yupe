@@ -53,6 +53,11 @@ CREATE TABLE IF NOT EXISTS `yupe_blog_blog` (
   KEY `ix_yupe_blog_blog_category_id` (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
+INSERT INTO `yupe_blog_blog` (`id`, `category_id`, `name`, `description`, `icon`, `slug`, `lang`, `type`, `status`, `create_user_id`, `update_user_id`, `create_date`, `update_date`) VALUES
+(1, NULL, 'Опубликованный блог', '<p>\n	Опубликованный блог описание\n</p>', '', 'public-blog', NULL, 1, 1, 1, 1, 1381246593, 1381246593),
+(2, NULL, 'Удаленный блог', '<p>\n	Удаленный блог\n</p>', '', 'deleted-blog', NULL, 1, 2, 1, 1, 1381246629, 1381246629);
+
+
 -- --------------------------------------------------------
 
 --
@@ -96,6 +101,10 @@ CREATE TABLE IF NOT EXISTS `yupe_blog_post` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
+
+INSERT INTO `yupe_blog_post` (`id`, `blog_id`, `create_user_id`, `update_user_id`, `create_date`, `update_date`, `publish_date`, `slug`, `lang`, `title`, `quote`, `content`, `link`, `status`, `comment_status`, `create_user_ip`, `access_type`, `keywords`, `description`, `image`, `category_id`) VALUES
+(1, 1, 1, 1, 1381419017, 1381419017, 1381375680, 'pervaja-publichnaja-zapis-v-opublikovannom-bloge', NULL, 'Первая публичная запись в опубликованном блоге', '<p>\r\n	Первая публичная запись в опубликованном блоге цитата\r\n</p>', '<p style="margin-left: 40px;">\r\n	Первая публичная запись в опубликованном блоге контент\r\n</p>', '', 1, 1, '127.0.0.1', 1, 'первый, пост', 'Первый пост', NULL, NULL),
+(2, 1, 1, 1, 1381419119, 1381419119, 1381375800, 'chernovik-v-opublikovannom-bloge', NULL, 'Черновик в опубликованном блоге', '<p style="margin-left: 20px;">\r\n	Черновик в опубликованном блоге цитата\r\n</p>', '<p style="margin-left: 20px;">\r\n	Черновик в опубликованном блоге контент\r\n</p>', '', 0, 1, '127.0.0.1', 1, 'второй, пост', 'Второй пост', NULL, NULL);
 
 --
 -- Table structure for table `yupe_blog_post_to_tag`
@@ -180,13 +189,14 @@ CREATE TABLE IF NOT EXISTS `yupe_catalog_good` (
 
 -- --------------------------------------------------------
 
+-- --------------------------------------------------------
+
 --
 -- Table structure for table `yupe_category_category`
 --
 
 CREATE TABLE IF NOT EXISTS `yupe_category_category` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `parent_id` int(11) DEFAULT NULL,
   `alias` varchar(150) NOT NULL,
   `lang` char(2) DEFAULT NULL,
   `name` varchar(250) NOT NULL,
@@ -194,19 +204,25 @@ CREATE TABLE IF NOT EXISTS `yupe_category_category` (
   `short_description` text,
   `description` text NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '1',
+  `level` int(11) DEFAULT '0',
+  `root` int(11) DEFAULT '0',
+  `lft` int(11) DEFAULT '0',
+  `rgt` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `ux_yupe_category_category_alias_lang` (`alias`,`lang`),
-  KEY `ix_yupe_category_category_parent_id` (`parent_id`),
-  KEY `ix_yupe_category_category_status` (`status`)
+  KEY `ix_yupe_category_category_status` (`status`),
+  KEY `ix_yupe_category_category_level` (`level`),
+  KEY `ix_yupe_category_category_root` (`root`),
+  KEY `ix_yupe_category_category_lft` (`lft`),
+  KEY `ix_yupe_category_category_rgt` (`rgt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `yupe_comment_comment`
 --
 
-CREATE TABLE IF NOT EXISTS `yupe_comment_comment` (
+CREATE TABLE `yupe_comment_comment` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `parent_id` int(11) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
@@ -219,14 +235,22 @@ CREATE TABLE IF NOT EXISTS `yupe_comment_comment` (
   `text` text NOT NULL,
   `status` int(11) NOT NULL DEFAULT '0',
   `ip` varchar(20) DEFAULT NULL,
+  `level` int(11) DEFAULT '0',
+  `root` int(11) DEFAULT '0',
+  `lft` int(11) DEFAULT '0',
+  `rgt` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `ix_yupe_comment_comment_status` (`status`),
   KEY `ix_yupe_comment_comment_model_model_id` (`model`,`model_id`),
   KEY `ix_yupe_comment_comment_model` (`model`),
   KEY `ix_yupe_comment_comment_model_id` (`model_id`),
   KEY `ix_yupe_comment_comment_user_id` (`user_id`),
-  KEY `ix_yupe_comment_comment_parent_id` (`parent_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  KEY `ix_yupe_comment_comment_parent_id` (`parent_id`),
+  KEY `ix_yupe_comment_comment_level` (`level`),
+  KEY `ix_yupe_comment_comment_root` (`root`),
+  KEY `ix_yupe_comment_comment_lft` (`lft`),
+  KEY `ix_yupe_comment_comment_rgt` (`rgt`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -341,6 +365,8 @@ CREATE TABLE IF NOT EXISTS `yupe_gallery_gallery` (
   KEY `ix_yupe_gallery_gallery_owner` (`owner`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
+INSERT INTO `yupe_gallery_gallery` VALUES (1,'Первая галерея','<p>\r\n  Первая галерея\r\n</p>',1,1);
+
 -- --------------------------------------------------------
 
 --
@@ -357,6 +383,8 @@ CREATE TABLE IF NOT EXISTS `yupe_gallery_image_to_gallery` (
   KEY `ix_yupe_gallery_image_to_gallery_gallery_to_image_image` (`image_id`),
   KEY `ix_yupe_gallery_image_to_gallery_gallery_to_image_gallery` (`gallery_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+INSERT INTO `yupe_gallery_image_to_gallery` VALUES (1,1,1,'2013-11-08 13:21:15');
 
 -- --------------------------------------------------------
 
@@ -383,6 +411,10 @@ CREATE TABLE IF NOT EXISTS `yupe_image_image` (
   KEY `ix_yupe_image_image_category_id` (`category_id`),
   KEY `fk_yupe_image_image_parent_id` (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+INSERT INTO `yupe_image_image` VALUES (1,NULL,NULL,'2013-10-22 22.33.28.jpg','','636b1da2749984e81de4adf1dd3d529f.jpg','2013-11-08 13:21:15',1,'2013-10-22 22.33.28.jpg',0,1);
+
+
 
 -- --------------------------------------------------------
 
@@ -483,14 +515,13 @@ INSERT INTO `yupe_menu_menu_item` (`id`, `parent_id`, `menu_id`, `regular_link`,
 (1, 0, 1, 0, 'Главная', '/site/index', '', 'Главная страница сайта', '', '', '', '', '', 0, 1, 1),
 (2, 0, 1, 0, 'Блоги', '/blog/blog/index', '', 'Блоги', '', '', '', '', '', 0, 2, 1),
 (3, 2, 1, 0, 'Пользователи', '/user/people/index', '', 'Пользователи', '', '', '', '', '', 0, 3, 1),
-(4, 3, 1, 0, 'Контакты', '/feedback/contact/index', '', 'Контакты', '', '', '', '', '', 0, 6, 1),
 (5, 0, 1, 0, 'Wiki', '/wiki/default/index', '', 'Wiki', '', '', '', '', '', 0, 9, 0),
 (6, 0, 1, 0, 'Войти', '/user/account/login', 'login-text', 'Войти на сайт', '', '', '', '', 'isAuthenticated', 1, 11, 1),
 (7, 0, 1, 0, 'Выйти', '/user/account/logout', 'login-text', 'Выйти', '', '', '', '', 'isAuthenticated', 0, 12, 1),
 (8, 0, 1, 0, 'Регистрация', '/user/account/registration', 'login-text', 'Регистрация на сайте', '', '', '', '', 'isAuthenticated', 1, 10, 1),
 (9, 0, 1, 0, 'Панель управления', '/yupe/backend/index', 'login-text', 'Панель управления сайтом', '', '', '', '', 'isSuperUser', 0, 13, 1),
 (10, 0, 1, 0, 'FAQ', '/feedback/contact/faq', '', 'FAQ', '', '', '', '', '', 0, 7, 1),
-(11, 0, 1, 0, 'Контакты', '/feedback/index/', '', 'Контакты', '', '', '', '', '', 0, 7, 1);
+(11, 0, 1, 0, 'Контакты', '/feedback/contact/index', '', 'Контакты', '', '', '', '', '', 0, 7, 1);
 
 -- --------------------------------------------------------
 
@@ -512,29 +543,39 @@ CREATE TABLE IF NOT EXISTS `yupe_migrations` (
 --
 
 INSERT INTO `yupe_migrations` (`id`, `module`, `version`, `apply_time`) VALUES
-(1, 'user', 'm000000_000000_user_base', 1379085241),
-(2, 'yupe', 'm000000_000000_yupe_base', 1379085242),
-(3, 'yupe', 'm130527_154455_yupe_change_unique_index', 1379085243),
-(4, 'category', 'm000000_000000_category_base', 1379085244),
-(5, 'comment', 'm000000_000000_comment_base', 1379085246),
-(6, 'image', 'm000000_000000_image_base', 1379085248),
-(7, 'gallery', 'm000000_000000_gallery_base', 1379085250),
-(8, 'gallery', 'm130427_120500_gallery_creation_user', 1379085251),
-(9, 'news', 'm000000_000000_news_base', 1379085253),
-(10, 'catalog', 'm000000_000000_good_base', 1379085255),
-(11, 'menu', 'm000000_000000_menu_base', 1379085257),
-(12, 'menu', 'm121220_001126_menu_test_data', 1379085257),
-(13, 'feedback', 'm000000_000000_feedback_base', 1379085259),
-(14, 'queue', 'm000000_000000_queue_base', 1379085260),
-(15, 'blog', 'm000000_000000_blog_base', 1379085269),
-(16, 'blog', 'm130503_091124_BlogPostImage', 1379085269),
-(17, 'blog', 'm130529_151602_add_post_category', 1379085270),
-(18, 'dictionary', 'm000000_000000_dictionary_base', 1379085274),
-(19, 'yeeki', 'm000000_000000_yeeki_base', 1379085278),
-(20, 'contentblock', 'm000000_000000_contentblock_base', 1379085279),
-(21, 'page', 'm000000_000000_page_base', 1379085282),
-(22, 'page', 'm130115_155600_columns_rename', 1379085282),
-(23, 'mail', 'm000000_000000_mail_base', 1379085285);
+(1, 'user', 'm000000_000000_user_base', 1386585435),
+(2, 'user', 'm131019_212911_user_tokens', 1386585435),
+(3, 'user', 'm131025_152911_clean_user_table', 1386585437),
+(4, 'user', 'm131026_002234_prepare_hash_user_password', 1386585438),
+(5, 'user', 'm131106_111552_user_restore_fields', 1386585438),
+(6, 'user', 'm131121_190850_modify_tokes_table', 1386585439),
+(7, 'yupe', 'm000000_000000_yupe_base', 1386585440),
+(8, 'yupe', 'm130527_154455_yupe_change_unique_index', 1386585441),
+(9, 'category', 'm000000_000000_category_base', 1386585442),
+(10, 'category', 'm131103_044317_category_nestedsets', 1386585445),
+(11, 'image', 'm000000_000000_image_base', 1386585447),
+(12, 'comment', 'm000000_000000_comment_base', 1386585449),
+(13, 'comment', 'm130704_095200_comment_nestedsets', 1386585451),
+(14, 'gallery', 'm000000_000000_gallery_base', 1386585453),
+(15, 'gallery', 'm130427_120500_gallery_creation_user', 1386585454),
+(16, 'news', 'm000000_000000_news_base', 1386585457),
+(17, 'catalog', 'm000000_000000_good_base', 1386585460),
+(18, 'menu', 'm000000_000000_menu_base', 1386585462),
+(19, 'menu', 'm121220_001126_menu_test_data', 1386585462),
+(20, 'menu', 'm131017_064101_fix_menu_test_data', 1386585462),
+(21, 'feedback', 'm000000_000000_feedback_base', 1386585464),
+(22, 'queue', 'm000000_000000_queue_base', 1386585465),
+(23, 'queue', 'm131007_031000_queue_fix_index', 1386585465),
+(24, 'blog', 'm000000_000000_blog_base', 1386585475),
+(25, 'blog', 'm130503_091124_BlogPostImage', 1386585475),
+(26, 'blog', 'm130529_151602_add_post_category', 1386585476),
+(27, 'dictionary', 'm000000_000000_dictionary_base', 1386585480),
+(28, 'yeeki', 'm000000_000000_yeeki_base', 1386585484),
+(29, 'contentblock', 'm000000_000000_contentblock_base', 1386585484),
+(30, 'page', 'm000000_000000_page_base', 1386585487),
+(31, 'page', 'm130115_155600_columns_rename', 1386585487),
+(32, 'mail', 'm000000_000000_mail_base', 1386585489);
+
 
 -- --------------------------------------------------------
 
@@ -641,30 +682,42 @@ CREATE TABLE IF NOT EXISTS `yupe_queue_queue` (
 
 -- --------------------------------------------------------
 
+-- --------------------------------------------------------
+
 --
--- Table structure for table `yupe_user_recovery_password`
+-- Table structure for table `yupe_user_tokens`
 --
 
-CREATE TABLE IF NOT EXISTS `yupe_user_recovery_password` (
+CREATE TABLE IF NOT EXISTS `yupe_user_tokens` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
-  `creation_date` datetime NOT NULL,
-  `code` char(32) NOT NULL,
+  `token` varchar(32) NOT NULL,
+  `type` int(11) NOT NULL,
+  `status` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime DEFAULT NULL,
+  `ip` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `ux_yupe_user_recovery_password_code` (`code`),
-  KEY `ix_yupe_user_recovery_password_user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
+  KEY `ix_yupe_user_tokens_user_id` (`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- Dumping data for table `yupe_user_recovery_password`
+-- Dumping data for table `yupe_user_tokens`
 --
+
+INSERT INTO `yupe_user_tokens` (`id`, `user_id`, `token`, `type`, `status`, `created`, `updated`, `ip`) VALUES
+(1, 1, 'ef5145bedaca7f17957350d817fd9807', 1, 1, '2013-11-05 20:02:30', '2013-11-05 20:02:31', '127.0.0.1'),
+(2, 1, 'a53d3c57af2096e56cdd531ad003a9d3', 3, 1, '2013-11-05 20:02:30', '2013-11-05 20:02:30', '127.0.0.1');
+
+
+
 --
 -- Table structure for table `yupe_user_user`
 --
 
-CREATE TABLE IF NOT EXISTS `yupe_user_user` (
+
+CREATE TABLE `yupe_user_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `creation_date` datetime NOT NULL,
   `change_date` datetime NOT NULL,
   `first_name` varchar(250) DEFAULT NULL,
   `middle_name` varchar(250) DEFAULT NULL,
@@ -676,32 +729,27 @@ CREATE TABLE IF NOT EXISTS `yupe_user_user` (
   `site` varchar(250) NOT NULL DEFAULT '',
   `about` varchar(250) NOT NULL DEFAULT '',
   `location` varchar(250) NOT NULL DEFAULT '',
-  `online_status` varchar(250) NOT NULL DEFAULT '',
-  `password` char(32) NOT NULL,
-  `salt` char(32) NOT NULL,
   `status` int(11) NOT NULL DEFAULT '2',
   `access_level` int(11) NOT NULL DEFAULT '0',
   `last_visit` datetime DEFAULT NULL,
-  `registration_date` datetime NOT NULL,
-  `registration_ip` varchar(50) NOT NULL,
-  `activation_ip` varchar(50) NOT NULL,
   `avatar` varchar(150) DEFAULT NULL,
-  `use_gravatar` tinyint(1) NOT NULL DEFAULT '1',
-  `activate_key` char(32) NOT NULL,
+  `hash` varchar(255) NOT NULL,
   `email_confirm` tinyint(1) NOT NULL DEFAULT '0',
+  `registration_date` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `ux_yupe_user_user_nick_name` (`nick_name`),
   UNIQUE KEY `ux_yupe_user_user_email` (`email`),
-  KEY `ix_yupe_user_user_status` (`status`),
-  KEY `ix_yupe_user_user_email_confirm` (`email_confirm`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+  KEY `ix_yupe_user_user_status` (`status`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+
 
 --
 -- Dumping data for table `yupe_user_user`
 --
 
-INSERT INTO `yupe_user_user` (`id`, `creation_date`, `change_date`, `first_name`, `middle_name`, `last_name`, `nick_name`, `email`, `gender`, `birth_date`, `site`, `about`, `location`, `online_status`, `password`, `salt`, `status`, `access_level`, `last_visit`, `registration_date`, `registration_ip`, `activation_ip`, `avatar`, `use_gravatar`, `activate_key`, `email_confirm`) VALUES
-(1, '2013-09-13 19:15:31', '2013-09-16 20:05:48', '', '', '', 'yupe', 'yupe@yupetest.ru', 0, NULL, '', '', '', '', '91298c3deadcf61346cc4e046ecc6738', '72bf7380c2ad86266bb53e75bd2b26cf', 1, 1, '2013-09-16 20:05:45', '2013-09-13 19:15:31', '127.0.0.1', '127.0.0.1', NULL, 1, 'da4fb4f42e1bac61271d924386e8c706', 1);
+INSERT INTO `yupe_user_user` (`id`, `change_date`, `first_name`, `middle_name`, `last_name`, `nick_name`, `email`, `gender`, `birth_date`, `site`, `about`, `location`, `status`, `access_level`, `last_visit`, `avatar`, `hash`, `email_confirm`, `registration_date`) VALUES(1, '2013-11-05 20:02:30', '', '', '', 'yupe', 'yupe@yupe.local', 0, NULL, '', '', '', 1, 1, '2013-11-05 20:02:31', NULL, '$2a$13$kV7qdBBM3MPYW.6LAKeiv.iIAMDa4BZFhwzjMWhCm78UmDT8wDH7G', 1, '2013-11-05 20:02:30');
+
 
 -- --------------------------------------------------------
 
@@ -839,12 +887,6 @@ ALTER TABLE `yupe_catalog_good`
   ADD CONSTRAINT `fk_yupe_catalog_good_category` FOREIGN KEY (`category_id`) REFERENCES `yupe_category_category` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_yupe_catalog_good_change_user` FOREIGN KEY (`change_user_id`) REFERENCES `yupe_user_user` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_yupe_catalog_good_user` FOREIGN KEY (`user_id`) REFERENCES `yupe_user_user` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION;
-
---
--- Constraints for table `yupe_category_category`
---
-ALTER TABLE `yupe_category_category`
-  ADD CONSTRAINT `fk_yupe_category_category_parent_id` FOREIGN KEY (`parent_id`) REFERENCES `yupe_category_category` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `yupe_comment_comment`

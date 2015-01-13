@@ -24,18 +24,17 @@ $this->breadcrumbs = array(
 
 <div class="alert">
     <p>
-        <?php echo Yii::t('YupeModule.yupe', ' Yupe! developed and maintained by a team of enthusiasts, you can use Yupe! and any part of it <b>absolutely for free</b>'); ?>
+        <?php echo Yii::t('YupeModule.yupe', ' Yupe! developed and maintained by a team of enthusiasts, you can use Yupe! and any part of it <b>absolutely for free</b>!'); ?>
     </p>
     <?php echo CHtml::link(Yii::t('YupeModule.yupe', 'There is a page for tahnks =)'), 'http://yupe.ru/pages/help?form=help', array('target' => '_blank')); ?>
     <p><p><b>
-        <?php echo Yii::t('YupeModule.yupe', 'On business support and development you can always <a href="http://yupe.ru/feedback/index/?form=help" target="_blank">feedback us</a> (<a href="http://yupe.ru/feedback/index/?form=help" target="_blank">http://yupe.ru/feedback/index</a>)'); ?>
+        <?php echo Yii::t('YupeModule.yupe', 'On business support and development you can always <a href="http://yupe.ru/contacts/?form=help" target="_blank">feedback us</a> (<a href="http://yupe.ru/contacts/?form=help" target="_blank">http://yupe.ru/contacts</a>)'); ?>
     </b></p></p>
 </div>
 
 <div class="alert">
     <p><?php echo Yii::t('YupeModule.yupe','Donate us!');?></p>
     <p><?php echo Yii::t('YupeModule.yupe','Я.Money on');?> <b>41001846363811</b></p>
-    <p><?php echo Yii::t('YupeModule.yupe','Webmoney on')?> <b>R239262659267</b></p>
 </div>
 
 <br />
@@ -75,7 +74,7 @@ $this->breadcrumbs = array(
 <br /><br />
 
 <div class="alert">
-    <?php echo Yii::t('YupeModule.yupe', 'Feedback at <a href="mailto:team@yupe.ru">team@yupe.ru</a> or {link}',array('{link}' => CHtml::link(Yii::t('YupeModule.yupe','feedback form'),'http://yupe.ru/feedback/index?from=help',array('target' => '_blank')))); ?>  - <?php echo Yii::t('YupeModule.yupe', 'accept any kind of business and any proposals =)'); ?>
+    <?php echo Yii::t('YupeModule.yupe', 'Feedback at <a href="mailto:team@yupe.ru">team@yupe.ru</a> or {link}',array('{link}' => CHtml::link(Yii::t('YupeModule.yupe','feedback form'),'http://yupe.ru/contacts?from=help',array('target' => '_blank')))); ?>  - <?php echo Yii::t('YupeModule.yupe', 'accept any kind of business and any proposals =)'); ?>
 </div>
 
 <br />
@@ -84,12 +83,24 @@ $this->breadcrumbs = array(
 
 <br /><br />
 
-<table class="detail-view table table-striped table-condensed" id="yupe-core-team">
+<table class="detail-view table table-striped table-striped condensed" id="yupe-core-team">
     <tbody>
          <tr class="odd">
             <th><?php echo Yii::t('YupeModule.yupe','Opeykin Andrey');?></th>
-            <td><?php echo CHtml::link('andrey.opeykin.ru','http://andrey.opeykin.ru?from=yupe_help');?></td>
+            <td><?php echo CHtml::link('amylabs.ru','http://amylabs.ru?from=yupe_help');?></td>
         </tr>
+        <tr class="odd">
+             <th><?php echo Yii::t('YupeModule.yupe','Sedov Nikolay');?></th>
+             <td><?php echo CHtml::link('amylabs.ru','http://amylabs.ru?from=yupe_help');?></td>
+        </tr>
+        <tr class="odd">
+             <th><?php echo Yii::t('YupeModule.yupe','Kucherov Anton');?></th>
+             <td><?php echo CHtml::link('idexter.ru','http://idexter.ru/');?></td>
+        </tr>
+         <tr class="odd">
+             <th><?php echo Yii::t('YupeModule.yupe','Timashov Maxim');?></th>
+             <td>apexwire@gmail.com</td>
+         </tr>
         <tr class="odd">
             <th><?php echo Yii::t('YupeModule.yupe','Tischenko Alexander');?></th>
             <td><?php echo CHtml::link('twitter.com/archaron','https://twitter.com/archaron');?></td>
@@ -99,33 +110,22 @@ $this->breadcrumbs = array(
             <td><?php echo CHtml::link('lyzhenkov.ru','http://lyzhenkov.ru?from=yupe_help');?></td>
         </tr>
         <tr class="odd">
-            <th><?php echo Yii::t('YupeModule.yupe','Elizarov Alexander');?></th>
-            <td><?php echo CHtml::link('vk.com/valaraukar','http://vk.com/valaraukar');?></td>
+            <th><?php echo Yii::t('YupeModule.yupe','Elizarov Alexey');?></th>
+            <td><?php echo CHtml::link('amylabs.ru','http://amylabs.ru?from=yupe_help');?></td>
         </tr>
         <tr class="odd">
             <th><?php echo Yii::t('YupeModule.yupe','Kulikov Engeniy');?></th>
             <td><?php echo CHtml::link('akulikov.org.ua','http://akulikov.org.ua?from=yupe_help');?></td>
         </tr>
         <tr class="odd">
-            <th><?php echo Yii::t('YupeModule.yupe','Timashov Maxim');?></th>
-            <td>apexwire@gmail.com</td>
-        </tr>
-        <tr class="odd">
             <th><?php echo Yii::t('YupeModule.yupe','Cherepanov Anton');?></th>
             <td><?php echo CHtml::link('twitter.com/davetoxa','https://twitter.com/davetoxa');?></td>
         </tr>
-        <tr class="odd">
-            <th><?php echo Yii::t('YupeModule.yupe','Sedov Nikolay');?></th>
-            <td><?php echo CHtml::link('https://twitter.com/mik_spark','https://twitter.com/mik_spark');?></td>
-        </tr>
-         <tr class="odd">
-             <th><?php echo Yii::t('YupeModule.yupe','Kucherov Anton');?></th>
-             <td><?php echo CHtml::link('http://idexter.ru/','http://idexter.ru/');?></td>
-         </tr>
+
     </tbody>
 </table>
 
-<b><?php echo CHtml::link(Yii::t('YupeModule.yupe','WE ARE WAITING FOR YOU!'),'http://yupe.ru/feedback/index?from=help',array('target' => '_blank'));?></b>
+<b><?php echo CHtml::link(Yii::t('YupeModule.yupe','WE ARE WAITING FOR YOU!'),'http://yupe.ru/contacts?from=help',array('target' => '_blank'));?></b>
 
 <br/><br/>
 

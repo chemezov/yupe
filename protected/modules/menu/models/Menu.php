@@ -23,7 +23,7 @@
  * The followings are the available model relations:
  * @property MenuItem[] $menuItems
  */
-class Menu extends YModel
+class Menu extends yupe\models\YModel
 {
     const STATUS_DISABLED = 0;
     const STATUS_ACTIVE   = 1;
@@ -56,7 +56,7 @@ class Menu extends YModel
             array('name, code, description', 'filter', 'filter' => array($obj = new CHtmlPurifier(), 'purify')),
             array('name, description', 'length', 'max' => 255),
             array('code', 'length', 'max' => 100),
-            array('code', 'YSLugValidator'),
+            array('code', 'yupe\components\validators\YSLugValidator'),
             array('code', 'unique'),
             array('status', 'in', 'range' => array_keys($this->statusList)),
             array('id, name, code, description, status', 'safe', 'on' => 'search'),
@@ -204,11 +204,22 @@ class Menu extends YModel
                 if ($result->href) {
                     // если адрес надо параметризовать через роутер
                     if (!$result->regular_link) {
-                        $url = $result->href;
-                        strstr($url, '?') ? list($url, $param) = explode("?", $url) : $param = array();
-                        if ($param)
-                            parse_str($param, $param);
-                        $url = array('url' => array($url) + $param, 'items' => $childItems);
+                        
+                        $url   = @unserialize($result->href) ?: $result->href;
+                        
+                        $param = array();
+
+                        if (!is_array($url)) {
+
+                            strstr($url, '?') ? list($url, $param) = explode("?", $url) : $param = array();
+                            
+                            if ($param) {
+                                parse_str($param, $param);
+                            }
+                            
+                        }
+
+                        $url = array('url' => (array) $url + $param, 'items' => $childItems);
                     } else {
                         // если обычная ссылка
                         $url = array('url' => $result->href, 'items' => $childItems);

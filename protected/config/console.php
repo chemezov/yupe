@@ -3,14 +3,12 @@ Yii::setPathOfAlias('application', dirname(__FILE__) . '/../');
 Yii::setPathOfAlias('yupe', dirname(__FILE__) . '/../modules/yupe/');
 Yii::setPathOfAlias('vendor', dirname(__FILE__) . '/../../vendor/');
 
-    return array(
+return array(
     // У вас этот путь может отличаться. Можно подсмотреть в config/main.php.
-    'basePath'          => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..',
-    'name'              => 'Cron',
-    'preload'           => array('log'),
-    'commandMap'        => array(
-
-    ),
+    'basePath' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..',
+    'name' => 'Cron',
+    'preload' => array('log'),
+    'commandMap' => array(),
     'import' => array(
         'application.commands.*',
         'application.components.*',
@@ -20,12 +18,12 @@ Yii::setPathOfAlias('vendor', dirname(__FILE__) . '/../../vendor/');
     ),
     // Перенаправляем журнал для cron-а в отдельные файлы
     'components' => array(
-         // компонент для отправки почты
+        // компонент для отправки почты
         'mail' => array(
-            'class' => 'application.modules.yupe.components.YMail',
+            'class' => 'yupe\components\Mail',
         ),
-        'migrator'=>array(
-            'class'=>'yupe\components\Migrator',
+        'migrator' => array(
+            'class' => 'yupe\components\Migrator',
         ),
         'log' => array(
             'class' => 'CLogRouter',
@@ -42,7 +40,6 @@ Yii::setPathOfAlias('vendor', dirname(__FILE__) . '/../../vendor/');
                 ),
             ),
         ),
-
         'cache' => array(
             'class' => 'CDummyCache',
             'behaviors' => array(
@@ -51,8 +48,13 @@ Yii::setPathOfAlias('vendor', dirname(__FILE__) . '/../../vendor/');
                 ),
             ),
         ),
-
-           // параметры подключения к базе данных, подробнее http://www.yiiframework.ru/doc/guide/ru/database.overview
-        'db' => require(dirname(__FILE__) . '/db.php'),
+        // параметры подключения к базе данных, подробнее http://www.yiiframework.ru/doc/guide/ru/database.overview
+        'db' => file_exists(__DIR__ . '/db.php') ? require_once __DIR__ . '/db.php' : array()
     ),
+    'modules' => array(
+        'yupe' => array(
+            'class' => 'application.modules.yupe.YupeModule',
+            'cache' => true,
+        ),
+    )
 );

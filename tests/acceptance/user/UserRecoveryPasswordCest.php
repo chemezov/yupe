@@ -28,19 +28,19 @@ class UserRecoveryPasswordCest
 
         $I->wantTo('Check recovery form with valid data...');
 
-        $I->fillField(RecoveryPage::$emailField, 'yupe@yupetest.ru');
+        $I->fillField(RecoveryPage::$emailField, 'yupe@yupe.local');
         $I->click(RecoveryPage::$buttonLabel);
         $I->see('На указанный email отправлено письмо с инструкцией по восстановлению пароля!', \CommonPage::SUCCESS_CSS_CLASS);
         $I->seeInCurrentUrl('login');
 
         $I->wantToTest('Failure password recovery');
         $I->amOnPage(RecoveryPage::getRecoveryRoute(time()));
-        $I->see('Ключ сброса пароля не найден!', CommonPage::ERROR_CSS_CLASS);
+        $I->see('Ошибка при смене пароля!', CommonPage::ERROR_CSS_CLASS);
 
-        $I->seeInDatabase('yupe_user_recovery_password', array('user_id' => 1));
-        $key = $I->grabFromDatabase('yupe_user_recovery_password','code', array('user_id' => 1));
+        $I->seeInDatabase('yupe_user_tokens', array('user_id' => 1,'type' => 2,'status' => 0));
+        $key = $I->grabFromDatabase('yupe_user_tokens','token',  array('user_id' => 1,'type' => 2,'status' => 0));
         $I->amOnPage(RecoveryPage::getRecoveryRoute($key));
-        $I->dontSeeInDatabase('yupe_user_recovery_password', array('user_id' => 1));
+        $I->dontSeeInDatabase('yupe_user_tokens', array('user_id' => 1,'type' => 2,'status' => 0));
         $I->see('Новый пароль отправлен Вам на email!',\CommonPage::SUCCESS_CSS_CLASS);
     }
 }

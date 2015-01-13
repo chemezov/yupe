@@ -1,10 +1,20 @@
 <?php
+
 /**
- * CFileHelper класс для работы с файлами.
+ * yupe\helpers\YFile:: хелпер, содержащий вспомогательные функции для работы с файловой системой
  *
- * @author Yupe Team
- * @link http://yupe.ru/
+ * @package  yupe.modules.yupe.helpers
+ * @subpackage helpers
+ * @license  BSD http://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F_BSD
+ * @version  0.1
+ * @author  Opeykin A. <aopeykin@yandex.ru>
+ * @link http://yupe.ru
+ *
  */
+
+
+namespace yupe\helpers;
+use CFileHelper;
 
 class YFile extends CFileHelper
 {
@@ -23,10 +33,11 @@ class YFile extends CFileHelper
         }
     }
 
-    public static function checkPath($path)
+
+    public static function checkPath($path, $rights=0777, $recursive = true)
     {
         if (!is_dir($path)) { // проверка на существование директории
-            return mkdir($path); // возвращаем результат создания директории
+            return mkdir($path, $rights, $recursive); // возвращаем результат создания директории
         }
         else if (!is_writable($path)) { // проверка директории на доступность записи
             return false;

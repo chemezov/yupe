@@ -105,4 +105,6 @@ return array (
     'no' => '',
     'are required' => '',
     'management' => '',
+    'read...' => '',
+	'Select {field}' => '',
 );

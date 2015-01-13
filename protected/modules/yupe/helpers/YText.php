@@ -1,9 +1,10 @@
 <?php
+
 /**
- *    Хелпер, содержащий самые необходимые функции для работы с текстом
- *    Большинство функций взяты из фреймворка Codeigniter (text_helper)
+ * Хелпер, содержащий самые необходимые функции для работы с текстом
+ * Большинство функций взяты из фреймворка Codeigniter (text_helper)
  *
- * @package Yupe
+ * @package  yupe.modules.yupe.helpers
  * @subpackage helpers
  * @version 0.0.1
  * @author  Opeykin A. <aopeykin@yandex.ru>
@@ -11,8 +12,16 @@
  *
  */
 
+namespace yupe\helpers;
+use CHtmlPurifier;
+
 class YText
 {
+    public static function langToflag($lang)
+    {
+        return "<i class='iconflags iconflags-{$lang}'></i>";
+    }
+
     public static function translit($str)
     {
         $str = str_replace(' ', '-', $str);
@@ -64,14 +73,16 @@ class YText
         }
 
         $out = "";
-        foreach (explode(' ', trim($str)) as $val)
-        {
+
+        foreach (explode(' ', trim($str)) as $val) {
             $out .= $val . ' ';
 
-            if (mb_strlen($out) >= $n)
-            {
+            if (mb_strlen($out) >= $n) {
                 $out = trim($out);
-                return (mb_strlen($out) == mb_strlen($str)) ? $out : $out . $end_char;
+                $p   = new CHtmlPurifier();
+                return (mb_strlen($out) == mb_strlen($str))
+                    ? $out
+                    : $p->purify($out . $end_char);
             }
         }
     }

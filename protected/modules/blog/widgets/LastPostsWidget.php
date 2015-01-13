@@ -10,19 +10,26 @@
  * @since 0.1
  *
  */
-
-class LastPostsWidget extends YWidget
+Yii::import('application.modules.blog.models.*'); 
+ 
+class LastPostsWidget extends yupe\widgets\YWidget
 {
-    public $limit = 5;
-
     public $view = 'lastposts';
+
+    public $criteria;
 
     public function run()
     {
-        $posts = Post::model()->published()->public()->cache($this->cacheTime)->findAll(array(
+        $criteria = array(
             'limit' => $this->limit,
-            'order' => 'id DESC',
-        ));
+            'order' => 't.id DESC',
+        );
+
+        if(is_array($this->criteria) && !empty($this->criteria)) {
+            $criteria = CMap::mergeArray($criteria, $this->criteria);
+        }
+
+        $posts = Post::model()->published()->with('createUser','commentsCount', 'blog')->public()->cache($this->cacheTime)->findAll($criteria);
 
         $this->render($this->view, array('models' =>$posts));
     }

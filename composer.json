@@ -26,7 +26,7 @@
         {
             "name": "Nickolay Sedov",
             "email": "yamikspark@gmail.com",
-            "homepage": "https://twitter.com/mik_spark",
+            "homepage": "http://amylabs.ru",
             "role": "Developer"
         },
         {
@@ -60,19 +60,37 @@
         "email": "team@yupe.ru",
         "issues": "https://github.com/yupe/yupe/issues",
         "forum": "http://yupe.ru/talk/",
-        "wiki": "http://yupe.ru/wiki/default/pageIndex",
         "source": "https://github.com/yupe/yupe/"
     },
     "require": {
-        "php": ">=5.3.7",
+        "php": ">=5.3.3",
         "yiisoft/yii": ">=1.1.14",
-        "clevertech/yii-booster": "2.0.*",
+        "clevertech/yii-booster": "2.*",
         "yiiext/nested-set-behavior": "dev-master",
-        "yiiext/imperavi-redactor-widget": "dev-master"
+        "yiiext/imperavi-redactor-widget": "dev-master",
+        "zhuravljov/yii2-debug": "dev-master",
+		"phpmailer/phpmailer": "dev-master",
+        "yiiext/taggable-behavior" : "1.5.*",
+        "nodge/yii-eauth": "dev-master",
+        "imagine/imagine": "v0.5.0",
+        "symfony/event-dispatcher" : "2.*"
+    },
+    "repositories": {
+        "taggable": {
+            "type": "package",
+            "package": {
+                "name": "yiiext/taggable-behavior",
+                "version": "1.5.1",
+                "source": {
+                    "url": "https://github.com/yiiext/taggable-behavior.git",
+                    "type": "git",
+                    "reference": "b3713545565374522b3cb2b1fe066720466f0897"
+                }
+            }
+        }
     },
     "require-dev": {
-        "codeception/codeception": "1.6.*",
-        "zhuravljov/yii2-debug": "dev-master"
+        "codeception/codeception": "1.8.*"
     },
     "minimum-stability": "stable"
 }

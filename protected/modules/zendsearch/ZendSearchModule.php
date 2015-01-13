@@ -24,6 +24,20 @@ class ZendSearchModule extends yupe\components\WebModule
         return array();
     }
 
+    /**
+     * массив групп параметров модуля, для группировки параметров на странице настроек
+     * 
+     * @return array
+     */
+    public function getEditableParamsGroups()
+    {
+        return array(
+            'main' => array(
+                'label' => Yii::t('YupeModule.yupe', 'Main settings'),
+            ),
+        );
+    }
+
     public function getParamsLabels()
     {
         return array(
@@ -55,7 +69,7 @@ class ZendSearchModule extends yupe\components\WebModule
 
     public function getName()
     {
-        return Yii::t('ZendSearchModule.zendsearch', 'Find (Zend)');
+        return Yii::t('ZendSearchModule.zendsearch', 'Search');
     }
 
     public function getDescription()
@@ -81,6 +95,11 @@ class ZendSearchModule extends yupe\components\WebModule
     public function getIcon()
     {
         return "search";
+    }
+
+    public function getAdminPageLink()
+    {
+        return '/zendsearch/manageBackend/index';
     }
 
     public function init()

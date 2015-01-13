@@ -4,25 +4,13 @@
  * Класс формы установки:
  *
  * @category YupeForms
- * @package  yupe
+ * @package  yupe.modules.install.forms
  * @author   YupeTeam <team@yupe.ru>
  * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
  * @version  0.0.1
  * @link     http://yupe.ru
  **/
-
-/**
- * Install Form Model
- * Класс формы установки:
- *
- * @category YupeForms
- * @package  yupe
- * @author   YupeTeam <team@yupe.ru>
- * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
- * @version  0.0.1
- * @link     http://yupe.ru
- **/
-class InstallForm extends YFormModel
+class InstallForm extends yupe\models\YFormModel
 {
     /**
      * Типы баз данных:
@@ -36,7 +24,7 @@ class InstallForm extends YFormModel
     /**
      * Параметры для настройки БД:
      **/
-    public $host        = 'localhost';
+    public $host        = '127.0.0.1';
     public $port        = '3306';
     public $socket      = '';
     public $dbName;
@@ -85,11 +73,11 @@ class InstallForm extends YFormModel
             /**
              * Для настройки БД:
              **/
-            array('host, port, dbName, dbUser, tablePrefix, dbType', 'required', 'on' => 'dbSettings'),
+            array('host, port, dbName, dbUser, dbType', 'required', 'on' => 'dbSettings'),
             array('dbPassword', 'length', 'min' => 0, 'max' => 32),
             array('port, dbType', 'numerical', 'integerOnly' => true),
             array('dbName, dbUser', 'length', 'min' => 0, 'max' => 256),
-            array('socket, createDb', 'safe'),
+            array('socket, createDb, tablePrefix', 'safe'),
 
             /**
              * Для начальной настройки сайта:
@@ -103,7 +91,8 @@ class InstallForm extends YFormModel
              * Для настройки администратора:
              **/
             array('userName, userPassword, cPassword, userEmail', 'required', 'on' => 'createUser'),
-            array('userPassword, cPassword, userName', 'length', 'min' => 3),
+            array('userPassword, cPassword', 'length', 'min' => 8),
+            array('userName', 'length', 'min' => 4),
             array('cPassword', 'compare', 'compareAttribute' => 'userPassword', 'message' => Yii::t('InstallModule.install', 'Passwords are not consistent')),
             array('userEmail', 'email'),
         );
@@ -214,10 +203,12 @@ class InstallForm extends YFormModel
          * Проверяем доступные СУБД:
          */
         
-        if (extension_loaded('pdo_mysql'))
+        if (extension_loaded('pdo_mysql')) {
             $dbTypes[self::DB_MYSQL] = 'MySQL';
-        if (extension_loaded('pdo_pgsql'))
+        }
+        if (extension_loaded('pdo_pgsql')) {
             $dbTypes[self::DB_POSTGRESQL] = 'PostgreSQL';
+        }
         
         return $dbTypes;
     }

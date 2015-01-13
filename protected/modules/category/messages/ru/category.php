@@ -17,6 +17,8 @@
  * NOTE, this file must be saved in UTF-8 encoding.
  */
 return array (
+  'Delete' => 'Удалить',
+  'Do you really want to delete selected elements?' => 'Вы уверены, что хотите удалить выбранные элементы?',
   '*unknown*' => '*неизвестно*',
   '--choose--' => '--выберите--',
   '--no--' => '--нет--',
@@ -81,4 +83,5 @@ return array (
   'create' => 'добавление',
   'are required' => 'обязательны.',
   'manage' => 'управление',
+  'Select {field}' => 'Выберите {field}',
 );

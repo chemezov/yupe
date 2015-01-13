@@ -14,7 +14,7 @@ class PageViewCest
 
         $I->wantToTest('unpublished page...');
         $I->amOnPage('/pages/skrytaja-stranica');
-        $I->see('Страница не найдена!');
+        $I->see('Страница которую Вы запросили не найдена.');
 
         $I->wantToTest('protected page...');
         $I->amOnPage('/pages/zaschischennaja-stranica');
@@ -22,7 +22,7 @@ class PageViewCest
         $I->see('Для просмотра этой страницы Вам необходимо авторизоваться!', \CommonPage::ERROR_CSS_CLASS);
 
         $I = new WebGuy\UserSteps($scenario);
-        $I->login('yupe@yupe.local','yupe');
+        $I->login('yupe@yupe.local','testpassword');
         $I->amOnPage('/pages/zaschischennaja-stranica');
         $I->seeInTitle('Защищенная страница');
         $I->see('Защищенная страница','h3');
@@ -30,7 +30,7 @@ class PageViewCest
 
         $I->wantToTest('page preview...');
         $I->amOnPage('/pages/skrytaja-stranica');
-        $I->see('Страница не найдена!');
+        $I->see('Страница которую Вы запросили не найдена.');
         $I->amOnPage('/pages/skrytaja-stranica?preview=1');
         $I->seeInTitle('Скрытая страница');
         $I->see('Скрытая страница','h3');

@@ -1,14 +1,13 @@
-<script type='text/javascript'>
-    var errorMessage = '<?php echo Yii::t("CommentModule.comment", "При добавлении комментария возникла ошибка, повторите попытку позже.")?>';
-</script>
-<a href='#' id='wcml' style="display: none;">НАПИСАТЬ КОММЕНТАРИЙ</a>
-<br/>
+<a href='#' id='wcml' style="display: none;"><?php echo Yii::t("CommentModule.comment", 'WRITE COMMENT'); ?></a>
+
 <div id='comment-form-wrap' class='comment-form-wrap'>
-<div class="form">
+
+<div id='comment-result' class='alert' style='display:none'></div>
+
 <?php $form = $this->beginWidget(
     'bootstrap.widgets.TbActiveForm',
     array(
-        'action' => '/comment/comment/add/',
+        'action' => Yii::app()->createUrl('/comment/add/'),
         'id' => 'comment-form',
         'type' => 'vertical',
         'inlineErrors' => true,
@@ -18,11 +17,6 @@
     )
 ); ?>
 
-    <p class="note">
-        <?php echo Yii::t('CommentModule.comment', 'Поля, отмеченные'); ?>
-        <span class="required">*</span> 
-        <?php echo Yii::t('CommentModule.comment', 'обязательны для заполнения'); ?>
-    </p>
 
     <?php echo $form->errorSummary($model); ?>
 
@@ -42,48 +36,41 @@
 
         <div class='row-fluid control-group <?php echo $model->hasErrors('url') ? 'error' : ''; ?>'>
             <?php echo $form->textFieldRow($model, 'url', array('class' => 'span6')); ?>
-        </div>
-
-    <?php else: ?>
-        <p><?php echo Yii::t('CommentModule.comment', 'От имени'); ?>: <?php echo Yii::app()->user->getState('nick_name'); ?></p>
+        </div>   
     <?php endif; ?>
 
     <div class='row-fluid control-group <?php echo $model->hasErrors('text') ? 'error' : ''; ?>'>
-        <?php echo $form->textAreaRow($model, 'text', array('class' => 'span12', 'required' => true,'rows' => 7, 'cols' => 50)); ?>
+        <?php echo $form->textAreaRow($model, 'text', array('class' => 'span12', 'required' => true,'rows' => 3, 'cols' => 50)); ?>
     </div>
 
     <?php if ($module->showCaptcha && !Yii::app()->user->isAuthenticated()): ?>
         <?php if(CCaptcha::checkRequirements()) : ?>
                 <?php echo $form->labelEx($model, 'verifyCode'); ?>
 
-                <?php
-                $this->widget(
-                    'CCaptcha', array(
+                <?php 
+                   $this->widget(
+                    'CCaptcha',
+                    array(
                         'showRefreshButton' => true,
-                        'clickableImage' => true,
-                        'buttonLabel' => 'обновить',
-                        'buttonOptions' => array('class' => 'captcha-refresh-link'),
+                        'imageOptions' => array(
+                            'width' => '150',
+                        ),
+                        'buttonOptions' => array(
+                            'class' => 'btn',
+                        ),
+                        'buttonLabel' => '<i class="icon-repeat"></i>',
                         'captchaAction' => '/comment/comment/captcha'
                     )
-                ); ?>
+                );
+                ?>
 
                 <div class='row-fluid control-group <?php echo $model->hasErrors('verifyCode') ? 'error' : ''; ?>'>
-                    <?php echo $form->textFieldRow($model, 'verifyCode', array('placeholder' => 'Введите цифры указанные на картинке','class' => 'span6', 'required' => true)); ?>
+                    <?php echo $form->textFieldRow($model, 'verifyCode', array('placeholder' => Yii::t('CommentModule.comment', 'Insert symbols you see on picture'),'class' => 'span6', 'required' => true)); ?>
                 </div>
         <?php endif; ?>
     <?php endif; ?>
     <div class="row-fluid  control-group">
-        <?php
-        $this->widget(
-            'bootstrap.widgets.TbButton',
-            array(
-                'buttonType' => 'submit',
-                'type' => 'primary',
-                'icon' => 'comment',
-                'label' => Yii::t('comment', 'Добавить комментарий'),
-            )
-        ); ?>
+        <button class="btn btn-primary" id="add-comment" type="submit" name="add-comment"><i class="fa fa-comment"></i> <?php echo Yii::t('CommentModule.comment', 'Create comment');?></button>
     </div>
 <?php $this->endWidget(); ?>
-</div><!-- form -->
 </div>

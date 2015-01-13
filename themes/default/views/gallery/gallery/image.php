@@ -11,14 +11,14 @@
 
 $this->pageTitle = $model->name; ?>
 <?php $this->breadcrumbs = array(
-    Yii::t('GalleryModule.gallery', 'Галереи') => array('/gallery/gallery/list'),
+    Yii::t('GalleryModule.gallery', 'Galleries') => array('/gallery/gallery/list'),
     $model->gallery->name => array('/gallery/gallery/show', 'id' => $model->gallery->id),
     $model->name
 );
 ?>
 <h1 class="page-header"><?php echo CHtml::encode($model->name); ?></h1>
 <div class="thumbnail">
-    <?php echo CHtml::image($model->getUrl(), $model->name); ?>
+    <?php echo CHtml::image($model->getUrl(800, 1000), $model->name); ?>
 </div>
 <hr>
 <p>

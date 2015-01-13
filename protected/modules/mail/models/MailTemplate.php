@@ -1,14 +1,4 @@
 <?php
-/**
- * MailTemplate model class
- * Класс модели MailTemplate
- *
- * @category YupeModel
- * @package  yupe
- * @author   YupeTeam <team@yupe.ru>
- * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
- * @link     http://yupe.ru
- **/
 
 /**
  * This is the model class for table "mail_template".
@@ -32,12 +22,12 @@
  * Класс модели MailTemplate
  *
  * @category YupeModel
- * @package  yupe
+ * @package  yupe.modules.models
  * @author   YupeTeam <team@yupe.ru>
  * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
  * @link     http://yupe.ru
  **/
-class MailTemplate extends YModel
+class MailTemplate extends yupe\models\YModel
 {
     const STATUS_ACTIVE     = 1;
     const STATUS_NOT_ACTIVE = 0;

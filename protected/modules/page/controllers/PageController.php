@@ -1,11 +1,12 @@
 <?php
+
 /**
  * PageController публичный контроллер для работы со страницами
  *
  * @author yupe team <team@yupe.ru>
  * @link http://yupe.ru
  * @copyright 2009-2013 amyLabs && Yupe! team
- * @package yupe.modules.page.controllers.public
+ * @package yupe.modules.page.controllers
  * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
  * @since 0.1
  *
@@ -22,36 +23,44 @@ class PageController extends yupe\components\controllers\FrontController
      */
     public function actionShow($slug)
     {
-        $this->layout = '//layouts/page-default';
         $page = null;
         // превью
-        $page = ((int) Yii::app()->request->getQuery('preview') === 1 && Yii::app()->user->isSuperUser())
-            ? Page::model()->find('slug = :slug AND (lang=:lang OR (lang IS NULL))', array(
-                ':slug' => $slug,
-                ':lang' => Yii::app()->language,
-            ))
-            : Page::model()->published()->find('slug = :slug AND (lang = :lang OR (lang = :deflang))', array(
-                ':slug'    => $slug,
-                ':lang'    => Yii::app()->language,
-                ':deflang' => Yii::app()->getModule('yupe')->defaultLanguage,
-            ));
+        $page = ((int)Yii::app()->getRequest()->getQuery('preview') === 1 && Yii::app()->user->isSuperUser())
+            ? Page::model()->find(
+                'slug = :slug AND (lang=:lang OR (lang IS NULL))',
+                array(
+                    ':slug' => $slug,
+                    ':lang' => Yii::app()->language,
+                )
+            )
+            : Page::model()->published()->find(
+                'slug = :slug AND (lang = :lang OR (lang = :deflang))',
+                array(
+                    ':slug' => $slug,
+                    ':lang' => Yii::app()->language,
+                    ':deflang' => $this->yupe->defaultLanguage,
+                )
+            );
 
-        if (!$page) {
+        if (null === $page) {
             throw new CHttpException('404', Yii::t('PageModule.page', 'Page was not found'));
         }
 
         // проверим что пользователь может просматривать эту страницу
-        if ($page->is_protected == Page::PROTECTED_YES && !Yii::app()->user->isAuthenticated())
-        {
+        if ($page->isProtected() && !Yii::app()->user->isAuthenticated()) {
             Yii::app()->user->setFlash(
-                YFlashMessages::ERROR_MESSAGE,
+                yupe\widgets\YFlashMessages::ERROR_MESSAGE,
                 Yii::t('PageModule.page', 'You must be authorized user for view this page!')
             );
+
             $this->redirect(array(Yii::app()->getModule('user')->accountActivationSuccess));
         }
+
         $this->currentPage = $page;
 
-        $this->render('page', array('page' => $page));
+        $view = $page->view ? $page->view : 'page';
+
+        $this->render($view, array('page' => $page));
     }
 
     /**
@@ -66,6 +75,7 @@ class PageController extends yupe\components\controllers\FrontController
 
         $pages = array_reverse($pages);
         $pages[] = $this->currentPage->title;
+
         return $pages;
     }
 
@@ -83,6 +93,7 @@ class PageController extends yupe\components\controllers\FrontController
         if ($pp) {
             $pages += $this->getBreadCrumbsRecursively($pp);
         }
+
         return $pages;
     }
 }

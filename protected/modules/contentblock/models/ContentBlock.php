@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * Модель ContentBlock
+ *
+ * @category YupeMigration
+ * @package  yupe.modules.contentblock.models
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
+ * @link     http://yupe.ru
+ **/
+
+/**
  * This is the model class for table "ContentBlock".
  *
  * The followings are the available columns in table 'ContentBlock':
@@ -9,11 +19,11 @@
  * @property integer $type
  * @property string $content
  * @property string $description
+ * @protected string $code
  */
-class ContentBlock extends YModel
+class ContentBlock extends yupe\models\YModel
 {
     const SIMPLE_TEXT = 1;
-    const PHP_CODE    = 2;
     const HTML_TEXT   = 3;
 
     /**
@@ -49,7 +59,7 @@ class ContentBlock extends YModel
             array('name', 'length', 'max' => 250),
             array('code', 'length', 'max' => 100),
             array('description', 'length', 'max' => 255),
-            array('code', 'YSLugValidator', 'message' => Yii::t('ContentBlockModule.contentblock', 'Unknown field format "{attribute}" only alphas, digits and _, from 2 to 50 characters')),
+            array('code', 'yupe\components\validators\YSLugValidator', 'message' => Yii::t('ContentBlockModule.contentblock', 'Unknown field format "{attribute}" only alphas, digits and _, from 2 to 50 characters')),
             array('code', 'unique'),
             array('id, name, code, type, content, description', 'safe', 'on' => 'search'),
         );
@@ -92,15 +102,29 @@ class ContentBlock extends YModel
     public function getTypes()
     {
         return array(
-            self::SIMPLE_TEXT => Yii::t('ContentBlockModule.contentblock', 'Full text'),
-            self::PHP_CODE    => Yii::t('ContentBlockModule.contentblock', 'Executed PHP code'),
+            self::SIMPLE_TEXT => Yii::t('ContentBlockModule.contentblock', 'Simple text'),
             self::HTML_TEXT   => Yii::t('ContentBlockModule.contentblock', 'HTML code'),
         );
     }
 
     public function getType()
     {
-        $data = $this->types;
+        $data = $this->getTypes();
         return isset($data[$this->type]) ? $data[$this->type] : Yii::t('ContentBlockModule.contentblock', '*unknown type*');
     }
+
+	protected function beforeSave()
+	{
+		if (parent::beforeSave()) {
+			Yii::app()->cache->delete("ContentBlock{$this->code}" . Yii::app()->language);
+
+			if ($this->type == self::SIMPLE_TEXT) {
+				$this->content = strip_tags($this->content);
+			}
+
+			return true;
+		}
+
+		return false;
+	}
 }

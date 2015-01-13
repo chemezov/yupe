@@ -1,8 +1,8 @@
 <?php
-$this->pageTitle = Yii::t('user', 'Восстановление пароля');
-$this->breadcrumbs = array('Восстановление пароля');
+$this->pageTitle = Yii::t('UserModule.user', 'Password recovery');
+$this->breadcrumbs = array(Yii::t('UserModule.user', 'Password recovery'));
 ?>
-<?php $this->widget('application.modules.yupe.widgets.YFlashMessages'); ?>
+<?php $this->widget('yupe\widgets\YFlashMessages'); ?>
 
 <?php $form = $this->beginWidget(
     'bootstrap.widgets.TbActiveForm',
@@ -21,7 +21,7 @@ $this->breadcrumbs = array('Восстановление пароля');
 <div class='row-fluid control-group <?php echo $model->hasErrors('email') ? 'error' : ''; ?>'>
     <?php echo $form->textFieldRow($model, 'email', array('class' => 'span6', 'required' => true)); ?>
     <span class="help-block">
-        <?php echo Yii::t('UserModule.user', 'Введите email, указанный при регистрации'); ?>
+        <?php echo Yii::t('UserModule.user', 'Enter an email you have used during signup'); ?>
     </span>
 </div>
 
@@ -32,7 +32,7 @@ $this->breadcrumbs = array('Восстановление пароля');
         array(
             'buttonType' => 'submit',
             'type' => 'primary',
-            'label' => Yii::t('UserModule.user', 'Восстановить пароль'),
+            'label' => Yii::t('UserModule.user', 'Recover password'),
         )
     ); ?>
 </div>

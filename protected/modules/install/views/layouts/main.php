@@ -28,11 +28,19 @@
     // bootstrap v2.3.2 js
     Yii::app()->clientScript->registerScriptFile(Yii::app()->baseUrl . '/web/install/js/bootstrap.min.js', CClientScript::POS_END);
     // jquery v1.8.3
-    if (!$this->yupe->enableAssets)
-        Yii::app()->clientScript->registerScriptFile(Yii::app()->baseUrl . '/web/install/js/jquery.min.js');
-    else
-        Yii::app()->clientScript->registerCoreScript('jquery');
     ?>
+
+    <?php if (!$this->yupe->enableAssets):?>
+        <?php Yii::app()->clientScript->registerScriptFile(Yii::app()->baseUrl . '/web/install/js/jquery.min.js');?>
+        <?php $mainAssets = Yii::app()->baseUrl . '/web/'; ?>
+    <?php else: ?>
+        <?php Yii::app()->clientScript->registerCoreScript('jquery');?>
+        <?php $mainAssets = Yii::app()->assetManager->publish(
+            Yii::getPathOfAlias('application.modules.yupe.views.assets')
+        );?>
+    <?php endif;?>
+
+    <?php Yii::app()->clientScript->registerCssFile($mainAssets. '/css/flags.css');?>
 </head>
 <body>
 <div id="overall-wrap">
@@ -41,10 +49,10 @@
     $this->widget(
         'bootstrap.widgets.TbNavbar',
         array(
-            'htmlOptions' => array('class' => 'navbar navbar-inverse'),
+            'htmlOptions' => array('class' => 'navbar'),
             'fluid' => true,
             'brand' => CHtml::image(
-                $this->yupe->themeBaseUrl . "/web/images/logo.png",
+                Yii::app()->baseUrl . "/web/images/logo.png",
                 $brandTitle,
                 array(
                     'width' => '38',
@@ -54,15 +62,13 @@
             ),
             'brandUrl' => $this->createUrl('index'),
             'items' => array(
-                CHtml::tag('span', array('id' => 'stepName'),  CHtml::encode(
-                    $this->stepName)),
-
+                CHtml::tag('span', array('id' => 'stepName'), CHtml::encode($this->stepName)),
                 array(
                     'class' => 'bootstrap.widgets.TbMenu',
                     'htmlOptions' => array('class' => 'pull-right'),
-                    'items' => array(
+                    'items' => array_merge(array(
                         array(
-                            'icon'  => 'question-sign white',
+                            'icon'  => 'question-sign',
                             'label' => Yii::t('YupeModule.yupe', 'Help'),
                             'url'   => 'http://yupe.ru/docs/index.html?from=install',
                             'items' => array(
@@ -105,7 +111,7 @@
                                 array(
                                     'icon'  => 'icon-warning-sign',
                                     'label' => Yii::t('YupeModule.yupe', 'Report bug'),
-                                    'url'   => 'http://yupe.ru/feedback/index?from=install',
+                                    'url'   => 'http://yupe.ru/contacts?from=install',
                                     'linkOptions' => array('target' => '_blank'),
                                 ),
                                 array(
@@ -117,23 +123,24 @@
                             ),
                         ),
                         array(
-                            'label' => $this->yupe->version,
-                            'icon' => 'icon-thumbs-up icon-white',
+                            'label' => $this->yupe->getVersion(),
+                            'icon' => 'icon-thumbs-up',
                             'url' => 'http://yupe.ru/?from=install'
                         ),
-                        $this->yupe->languageSelectorArray,
+                      ), $this->yupe->getLanguageSelectorArray()
                     ),
                 ),
             ),
         )
     );
     ?>
+
     <div class='row-fluid installContentWrapper'>
         <?php if (count($this->breadcrumbs))
             $this->widget('bootstrap.widgets.TbBreadcrumbs', array('links' => $this->breadcrumbs));
         ?>
         <!-- breadcrumbs -->
-        <?php //$this->widget('YFlashMessages'); ?>
+        <?php //$this->widget('yupe\widgets\YFlashMessages'); ?>
         <div class="installContent">
             <?php echo $content; ?>
         </div>
@@ -141,7 +148,7 @@
     </div>
 </div>
 <footer>
-    Copyright &copy; 2009-<?php echo date('Y'); ?>
+    Copyright &copy; 2010-<?php echo date('Y'); ?>
     <?php echo $this->yupe->poweredBy();?>
     <small class="label label-info"><?php echo $this->yupe->getVersion(); ?></small>
     <br/>

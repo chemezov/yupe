@@ -1,7 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-    Yii::t('YupeModule.yupe', 'System') => array('settings'),
-    Yii::t('YupeModule.yupe', 'Settings') => array('settings'),
+    Yii::t('YupeModule.yupe', 'System') => array('settings'),   
     Yii::t('YupeModule.yupe', 'Themes'),
 );
 ?>
@@ -13,6 +12,7 @@ $this->breadcrumbs = array(
     <?php echo Yii::t('YupeModule.yupe', 'Current backend theme'); ?>: <b><?php echo $backendTheme; ?></b>
     <p><?php echo CHtml::link(Yii::t('YupeModule.yupe', 'More about themes'),'http://yiiframework.com/doc/guide/topics.theming',array('target' => '_blank'));?></p>
 </div>
+
 
 <?php echo CHtml::beginForm(array('/yupe/backend/themesettings', 'post'), 'post', array('class' => 'well')); ?>
     <?php echo CHtml::label(Yii::t('YupeModule.yupe', 'Choose site theme'), 'theme');?>

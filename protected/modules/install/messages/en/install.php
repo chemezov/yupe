@@ -221,4 +221,9 @@ return array (
     'We always open for commercial and other propositions' => '',
     'Send pull request' => '',
     'This option is experiment. Only MySQL and PostgreSQL works stable.' => '',
+    'Zend OPcache required to optimize and speed up your project.' => '',
+    'General sponsor' => '',
+    'All discussions here' => '',
+    'Just good guys' => '',
+    'Please, select your language below for continue.' => '',
 );

@@ -12,11 +12,7 @@
 
 class PageModule extends yupe\components\WebModule
 {
-    /**
-     *  Основная категория для страниц
-     *
-    */
-    public $mainCategory;
+    const VERSION = '0.7';
 
     public function getDependencies()
     {
@@ -37,7 +33,7 @@ class PageModule extends yupe\components\WebModule
 
     public function  getVersion()
     {
-        return Yii::t('PageModule.page', '0.5');
+        return self::VERSION;
     }
 
     public function getEditableParams()
@@ -94,10 +90,9 @@ class PageModule extends yupe\components\WebModule
         parent::init();
 
         $this->setImport(array(
-              'application.modules.page.models.*',
-              'application.modules.page.components.*',
+              'application.modules.page.models.*',              
               'application.modules.page.components.widgets.*',
-         ));
+        ));
 
         // Если у модуля не задан редактор - спросим у ядра
         if (!$this->editor) {
@@ -108,24 +103,19 @@ class PageModule extends yupe\components\WebModule
     public function isMultiLang()
     {
         return true;
-    }
+    }   
 
-    public function getCategoryList()
+    public function getAdminPageLink()
     {
-        $criteria = array('order' => 'id ASC');
-        if ($this->mainCategory)
-            $criteria += array(
-                'condition' => 'id = :id OR parent_id = :id',
-                'params'    => array(':id' => $this->mainCategory),
-            );
-        return Category::model()->findAll($criteria);
+        return '/page/pageBackend/index';
     }
 
     public function getNavigation()
     {
         return array(
-            array('icon' => 'list-alt', 'label' => Yii::t('PageModule.page', 'Pages list'), 'url' => array('/page/default/index')),
-            array('icon' => 'plus-sign', 'label' => Yii::t('PageModule.page', 'Create page'), 'url' => array('/page/default/create')),
+            array('icon' => 'list-alt', 'label' => Yii::t('PageModule.page', 'Pages list'), 'url' => array('/page/pageBackend/index')),
+            array('icon' => 'plus-sign', 'label' => Yii::t('PageModule.page', 'Create page'), 'url' => array('/page/pageBackend/create')),
+            array('icon' => 'icon-folder-open', 'label' => Yii::t('PageModule.page', 'Pages categories'), 'url' => array('/category/categoryBackend/index', 'Category[parent_id]' => (int)$this->mainCategory)),
         );
     }
 }

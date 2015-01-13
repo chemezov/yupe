@@ -11,14 +11,22 @@
  *
  */
 
-class MembersOfBlogWidget extends YWidget
+Yii::import('application.modules.blog.models.*');  
+ 
+class MembersOfBlogWidget extends yupe\widgets\YWidget
 {
     public $blogId;
 
+    public $blog;
+
+    public $view = 'membersofblog';
+
     public function run()
     {
-        $blog = Blog::model()->with('members')->findByPk($this->blogId);
+        if(!$this->blog) {
+            $this->blog = Blog::model()->with('members')->findByPk($this->blogId);	
+        }        
 
-        $this->render('membersofblog', array('model' => $blog));
+        $this->render($this->view, array('model' => $this->blog));
     }
 }

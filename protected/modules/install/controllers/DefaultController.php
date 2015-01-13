@@ -3,12 +3,14 @@
  * Default Install Controller
  *
  * @category YupeControllers
- * @package  yupe
+ * @package yupe.modules.install.controllers
  * @author   YupeTeam <team@yupe.ru>
  * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
  * @version  0.0.1
  * @link     http://yupe.ru
  **/
+
+use yupe\models\Settings;
 
 class DefaultController extends yupe\components\controllers\BackController
 {
@@ -309,9 +311,23 @@ class DefaultController extends yupe\components\controllers\BackController
             array(
                 Yii::t('InstallModule.install', 'РНР version'),
                 true,
-                version_compare(PHP_VERSION, "5.3.7", ">="),
+                version_compare(PHP_VERSION, "5.3.3", ">="),
                 '<a href="http://www.yiiframework.com">Yii Framework</a>',
-                Yii::t('InstallModule.install', 'Need PHP version 5.3 and above.'),
+                Yii::t('InstallModule.install', 'Need PHP version 5.3.3 and above.'),
+            ),
+            array(
+                Yii::t('InstallModule.install', 'Расширение json'),
+                true,
+                extension_loaded("json"),
+                'php_json',
+                Yii::t('InstallModule.install', 'Функции для работы с json')
+            ),
+            array(
+                Yii::t('InstallModule.install', 'Zend OPcache'),
+                false,
+                extension_loaded('Zend OPcache'),
+                '<a href="http://php.net/manual/ru/book.opcache.php">Zend OPcache',
+                Yii::t('InstallModule.install', 'Zend OPcache required to optimize and speed up your project.'),
             ),
             array(
                 Yii::t('InstallModule.install', 'The variable $_SERVER'),
@@ -649,7 +665,7 @@ class DefaultController extends yupe\components\controllers\BackController
             }
         }
 
-        if (Yii::app()->request->isPostRequest && isset($_POST['InstallForm'])) {
+        if (Yii::app()->getRequest()->getIsPostRequest() && isset($_POST['InstallForm'])) {
             $form->setAttributes($_POST['InstallForm']);
 
             if ($form->validate()) {
@@ -719,13 +735,18 @@ class DefaultController extends yupe\components\controllers\BackController
                             'password' => $form->dbPassword,
                             'emulatePrepare' => true,
                             'charset' => 'utf8',
-                            'enableParamLogging' => 0,
-                            'enableProfiling' => 0,
+                            'enableParamLogging' => "{debug}",
+                            'enableProfiling' => "{debug}",
                             'schemaCachingDuration' => 108000,
                             'tablePrefix' => $form->tablePrefix,
                         );
 
-                        $dbConfString = "<?php\n return " . var_export($dbParams, true) . ";\n";
+                        $dbConfString = "<?php\n return "
+                                        . str_replace(
+                                            "'{debug}'",
+                                            "defined('YII_DEBUG') && YII_DEBUG ? true : 0",
+                                            var_export($dbParams, true)
+                                        ) . ";\n";
 
                         $fh = fopen($dbConfFile, 'w+');
                         if (!$fh) {
@@ -805,11 +826,11 @@ class DefaultController extends yupe\components\controllers\BackController
     {
         $error = false;
 
-        $modules = $this->yupe->getModulesDisabled();
+        $modules = Yii::app()->moduleManager->getModulesDisabled();
         // Не выводить модуль install и yupe
         unset($modules['install']);
 
-        if (Yii::app()->request->isPostRequest) {
+        if (Yii::app()->getRequest()->getIsPostRequest()) {
             $this->session['InstallForm'] = array_merge(
                 $this->session['InstallForm'],
                 array(
@@ -848,7 +869,7 @@ class DefaultController extends yupe\components\controllers\BackController
                     foreach ($deps as $dep) {
                         if (!isset($toInstall[$dep])) {
                             Yii::app()->user->setFlash(
-                                YFlashMessages::ERROR_MESSAGE,
+                                yupe\widgets\YFlashMessages::ERROR_MESSAGE,
                                 Yii::t(
                                     'InstallModule.install',
                                     'Module "{module}" depends on the module "{dep}", which is not activated.',
@@ -867,27 +888,26 @@ class DefaultController extends yupe\components\controllers\BackController
             if (!$error) {
                 // Переносим конфигурационные файлы не устанавливаемых модулей в back-папку
                 
-                yupe\components\ConfigManager::flushDump();
+                Yii::app()->configManager->flushDump();
                 
-                $files = glob($this->yupe->getModulesConfig() . "*.php");
+                $files = glob(Yii::app()->moduleManager->getModulesConfig() . "*.php");
                 foreach ($files as $file) {
                     $name = pathinfo($file, PATHINFO_FILENAME);
-                    if ($name == 'yupe') {
+                    if ($name == 'yupe' || $name == 'install') {
                         continue;
                     }
 
-                    $fileModule = $this->yupe->getModulesConfigDefault($name);
-                    $fileConfig = $this->yupe->getModulesConfig($name);
-                    $fileConfigBack = $this->yupe->getModulesConfigBack($name);
+                    $fileModule = Yii::app()->moduleManager->getModulesConfigDefault($name);
+                    $fileConfig = Yii::app()->moduleManager->getModulesConfig($name);
+                    $fileConfigBack = Yii::app()->moduleManager->getModulesConfigBack($name);
 
-
-                    if ($name != 'yupe' && ((!(@is_file($fileModule) && @md5_file($fileModule) == @md5_file(
+                    if ($name != \yupe\components\ModuleManager::CORE_MODULE && ((!(@is_file($fileModule) && @md5_file($fileModule) == @md5_file(
                                             $fileConfig
                                         )) && !@copy($fileConfig, $fileConfigBack)) || !@unlink($fileConfig))
                     ) {
                         $error = true;
                         Yii::app()->user->setFlash(
-                            YFlashMessages::ERROR_MESSAGE,
+                            yupe\widgets\YFlashMessages::ERROR_MESSAGE,
                             Yii::t(
                                 'InstallModule.install',
                                 'An error occurred during the installation of modules - copying the file to a folder modulesBack with error!'
@@ -948,7 +968,7 @@ class DefaultController extends yupe\components\controllers\BackController
      **/
     public function actionModuleinstall($name = null)
     {
-        $modules = $this->yupe->getModulesDisabled();
+        $modules = Yii::app()->moduleManager->getModulesDisabled();
 
         if (empty($name) || !isset($modules[$name])) {
             throw new CHttpException(404, Yii::t(
@@ -1001,33 +1021,29 @@ class DefaultController extends yupe\components\controllers\BackController
             }
         }
 
-        if (Yii::app()->request->isPostRequest && isset($_POST['InstallForm'])) {
+        if (($data = Yii::app()->getRequest()->getPost('InstallForm')) !== null) {
             // Сбрасываем сессию текущего пользователя, может поменяться id
             Yii::app()->user->clearStates();
 
-            $model->setAttributes($_POST['InstallForm']);
+            $model->setAttributes($data);
 
             if ($model->validate()) {
                 $user = new User;
 
                 $user->deleteAll();
 
-                $salt = $user->generateSalt();
-
                 $user->setAttributes(
                     array(
                         'nick_name'         => $model->userName,
                         'email'             => $model->userEmail,
-                        'salt'              => $salt,
                         'gender'            => 0,
-                        'use_gravatar'      => 1,
-                        'password'          => User::model()->hashPassword($model->userPassword, $salt),
-                        'registration_date' => new CDbExpression('NOW()'),
-                        'registration_ip'   => Yii::app()->request->userHostAddress,
-                        'activation_ip'     => Yii::app()->request->userHostAddress,
                         'access_level'      => User::ACCESS_LEVEL_ADMIN,
                         'status'            => User::STATUS_ACTIVE,
                         'email_confirm'     => User::EMAIL_CONFIRM_YES,
+                        'hash'              => Yii::app()->userManager->hasher->hashPassword(
+                            $model->userPassword
+                        ),
+                        'birth_date' => null
                     )
                 );
 
@@ -1037,10 +1053,10 @@ class DefaultController extends yupe\components\controllers\BackController
                     $login->email    = $model->userEmail;
                     $login->password = $model->userPassword;
 
-                    $login->authenticate();
+                    Yii::app()->authenticationManager->login($login, Yii::app()->user, Yii::app()->request);
 
                     Yii::app()->user->setFlash(
-                        YFlashMessages::SUCCESS_MESSAGE,
+                        yupe\widgets\YFlashMessages::SUCCESS_MESSAGE,
                         Yii::t('InstallModule.install', 'The administrator has successfully created!')
                     );
 
@@ -1095,7 +1111,7 @@ class DefaultController extends yupe\components\controllers\BackController
             }
         }
 
-        if ((Yii::app()->request->isPostRequest) && (isset($_POST['InstallForm']))) {
+        if ((Yii::app()->getRequest()->getIsPostRequest()) && (isset($_POST['InstallForm']))) {
             $model->setAttributes($_POST['InstallForm']);
 
             if ($model->validate()) {
@@ -1136,12 +1152,12 @@ class DefaultController extends yupe\components\controllers\BackController
                     $transaction->commit();
 
                     Yii::app()->user->setFlash(
-                        YFlashMessages::SUCCESS_MESSAGE,
+                        yupe\widgets\YFlashMessages::SUCCESS_MESSAGE,
                         Yii::t('InstallModule.install', 'Site settings saved successfully!')
                     );
 
                     // попробуем создать каталог assets
-                    $assetsPath = dirname(Yii::app()->request->getScriptFile()) . '/' . CAssetManager::DEFAULT_BASEPATH;
+                    $assetsPath = dirname(Yii::app()->getRequest()->getScriptFile()) . '/' . CAssetManager::DEFAULT_BASEPATH;
 
                     if (!is_dir($assetsPath)) {
                         @mkdir($assetsPath);
@@ -1160,7 +1176,7 @@ class DefaultController extends yupe\components\controllers\BackController
                     $transaction->rollback();
 
                     Yii::app()->user->setFlash(
-                        YFlashMessages::ERROR_MESSAGE,
+                        yupe\widgets\YFlashMessages::ERROR_MESSAGE,
                         $e->__toString()
                     );
 
@@ -1192,9 +1208,9 @@ class DefaultController extends yupe\components\controllers\BackController
     public function actionFinish()
     {
         try {
-            Yii::app()->getModule('install')->getActivate();
+            Yii::app()->getModule('install')->getDeActivate();
             Yii::app()->user->setFlash(
-                YFlashMessages::SUCCESS_MESSAGE,
+                yupe\widgets\YFlashMessages::SUCCESS_MESSAGE,
                 Yii::t(
                     'InstallModule.install', "The module {name} is disabled!", array(
                         '{name}' => 'install',
@@ -1203,7 +1219,7 @@ class DefaultController extends yupe\components\controllers\BackController
             );
         } catch (Exception $e) {
             Yii::app()->user->setFlash(
-                YFlashMessages::ERROR_MESSAGE,
+                yupe\widgets\YFlashMessages::ERROR_MESSAGE,
                 $e->getMessage()
             );
         }

@@ -12,14 +12,32 @@
 
 class MailModule extends yupe\components\WebModule
 {
-    /**
+    const VERSION = '0.7';
+
+	public function getParamsLabels()
+	{
+		return array(
+			'adminMenuOrder' => Yii::t('MailModule.mail', 'Menu items order'),
+			'editor'         => Yii::t('MailModule.mail', 'Visual editor'),
+		);
+	}
+
+	public function getEditableParams()
+	{
+		return array(
+			'adminMenuOrder',
+			'editor' => Yii::app()->getModule('yupe')->getEditors(),
+		);
+	}
+
+	/**
      * Метод получения версии:
      *
      * @return string version
      **/
     public function getVersion()
     {
-        return Yii::t('MailModule.mail', '0.1');
+        return self::VERSION;
     }
 
     /**
@@ -99,7 +117,7 @@ class MailModule extends yupe\components\WebModule
      **/
     public function getAdminPageLink()
     {
-        return '/mail/eventAdmin/index';
+        return '/mail/eventBackend/index';
     }
 
     /**
@@ -111,11 +129,11 @@ class MailModule extends yupe\components\WebModule
     {
         return array(
             array('label' => Yii::t('MailModule.mail', 'Mail events')),
-            array('icon' => 'list-alt', 'label' => Yii::t('MailModule.mail', 'Messages list'), 'url'=>array('/mail/eventAdmin/index')),
-            array('icon' => 'plus-sign', 'label' => Yii::t('MailModule.mail', 'Create event'), 'url' => array('/mail/eventAdmin/create')),
+            array('icon' => 'list-alt', 'label' => Yii::t('MailModule.mail', 'Messages list'), 'url'=>array('/mail/eventBackend/index')),
+            array('icon' => 'plus-sign', 'label' => Yii::t('MailModule.mail', 'Create event'), 'url' => array('/mail/eventBackend/create')),
             array('label' => Yii::t('MailModule.mail', 'Mail templates')),
-            array('icon'=> 'list-alt', 'label' => Yii::t('MailModule.mail', 'Templates list'), 'url'=>array('/mail/templateAdmin/index')),
-            array('icon'=> 'plus-sign', 'label' => Yii::t('MailModule.mail', 'Create template'), 'url' => array('/mail/templateAdmin/create')),
+            array('icon'=> 'list-alt', 'label' => Yii::t('MailModule.mail', 'Templates list'), 'url'=>array('/mail/templateBackend/index')),
+            array('icon'=> 'plus-sign', 'label' => Yii::t('MailModule.mail', 'Create template'), 'url' => array('/mail/templateBackend/create')),
         );
     }
 
@@ -134,26 +152,6 @@ class MailModule extends yupe\components\WebModule
         );
 
         parent::init();
-    }
-
-    /**
-     * Указываем, что модуль не отключаемый
-     *
-     * @return boolean
-     **/
-    public function getIsNoDisable()
-    {
-        return true;
-    }
-
-    /**
-     * Указываем, что модуль будет установлен поумолчанию:
-     *
-     * @return boolean
-     **/
-    public function getIsInstallDefault()
-    {
-        return true;
     }
 
     /**

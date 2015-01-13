@@ -5,7 +5,7 @@
  * Все модели, разработанные для Юпи! должны наследовать этот класс.
  *
  * @category YupeComponents
- * @package  Yupe
+ * @package  yupe.modules.yupe.models
  * @abstract
  * @author   YupeTeam <team@yupe.ru>
  * @license  https://github.com/yupe/yupe/blob/master/LICENSE BSD
@@ -13,22 +13,53 @@
  * @link     http://yupe.ru - основной сайт
  * 
  **/
-Yii::import('yupe.extensions.tagcache.TagsCache');
-/**
- * YModel - базовый класс для всех моделей Юпи!
- *
- * @category YupeComponents
- * @package  Yupe
- * @abstract
- * @author   YupeTeam <team@yupe.ru>
- * @license  https://github.com/yupe/yupe/blob/master/LICENSE BSD
- * @version  0.0.4
- * @link     http://yupe.ru - основной сайт
- * 
- **/
+
+namespace yupe\models;
+
+use CActiveRecord;
+use ReflectionClass;
+use TagsCache;
+use CCacheDependency;
+use CChainedCacheDependency;
+use Yii;
+
 abstract class YModel extends CActiveRecord
 {
     public $cacheKey = false;
+
+	/**
+	 * Получение ссылки на объект модели
+	 * Это позволяет не писать каждый раз publiс static model в моделях Yii.
+	 *
+	 * @author Zalatov A.
+	 *
+	 * @param string $class_name Если необходимо, можно вручную указать имя класса
+	 * @return $this
+	 */
+	public static function model($class_name = null) {
+		if ($class_name === null) $class_name = get_called_class();
+		return parent::model($class_name);
+	}
+
+	/**
+	 * Получение имени класса
+	 *
+	 * Этот метод необходим, чтобы постараться избежать использования имени класса как строки.
+	 * Метод get_class() принимает объект, поэтому не годится для статичного вызова.
+	 * Например, в relations можно теперь вместо 'CatalogItem' указывать CatalogItem::_CLASS_().
+	 * Это позволит использовать более точно Find Usages в IDE.
+	 *
+	 * Начиная с версии PHP > 5.5 есть магическая константа CLASS, которая аналогична.
+	 * Но в целях совместимости с более старыми версиями PHP, рекомендуется использовать именно этот метод.
+	 *
+	 * @author Zalatov A.
+	 *
+	 * @return string
+	 */
+	public static function _CLASS_() {
+		return get_called_class();
+	}
+
     /**
      * Функция получения id-модуля:
      *
@@ -114,10 +145,12 @@ abstract class YModel extends CActiveRecord
          * Если не указана зависимость,
          * выставляем тегирование
          */
-        if ($dependency === null)
+        if ($dependency === null) {
             return parent::cache($duration, new TagsCache($model, $module), $queryCount);
-        elseif ($dependency instanceof TagsCache)
+        }
+        elseif ($dependency instanceof TagsCache){
             return parent::cache($duration, $dependency, $queryCount);
+        }
         
         /**
          * Если же есть зависимость,

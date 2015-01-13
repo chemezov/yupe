@@ -17,6 +17,10 @@
  * NOTE, this file must be saved in UTF-8 encoding.
  */
 return array (
+  'News categories' => 'Категории новостей',
+  'News lists'    => 'Списки новостей',
+  'General module settings' => 'Основные настройки модуля',
+  'Images settings' => 'Настройки изображений',
   'News per page' => 'Новостей на странице',
   '*unknown*' => '*неизвестно*',
   '- no matter -' => '- не важен -',
@@ -45,7 +49,9 @@ return array (
   'Create article and continue' => 'Добавить новость и продолжить',
   'Add translation for {lang} language' => 'Добавить перевод на {lang} язык',
   'Create' => 'Добавление',
-  'Access: * Only for authorized users' => 'Доступ: * только для авторизованных пользователей',
+  'Access only for authorized' => 'Доступ только для авторизованных',
+  'Delete' => 'Удалить',
+  'Do you really want to delete selected elements?' => 'Вы уверены, что хотите удалить выбранные элементы?',
   'Title' => 'Заголовок',
   'Bad characters in {attribute} field' => 'Запрещенные символы в поле {attribute}',
   'Requested page was not found!' => 'Запрошенная страница не найдена!',
@@ -106,4 +112,6 @@ return array (
   'no' => 'нет',
   'are required' => 'обязательны.',
   'management' => 'управление',
+  'read...' => 'читать...',
+  'Select {field}' => 'Выберите {field}',
 );

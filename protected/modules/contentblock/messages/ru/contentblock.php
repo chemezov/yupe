@@ -17,6 +17,9 @@
  * NOTE, this file must be saved in UTF-8 encoding.
  */
 return array (
+  'Simple text' => 'Простой текст',
+  'Delete' => 'Удалить',
+  'Do you really want to delete selected elements?' => 'Вы уверены, что хотите удалить выбранные элементы?',
   '*unknown type*' => '*неизвестный тип*',
   '0.2' => '0.2',
   'Add block' => 'Добавить блок',
@@ -71,4 +74,5 @@ return array (
   'id' => 'id',
   'team@yupe.ru' => 'team@yupe.ru',
   'yupe team' => 'yupe team',
+  'Select {field}' => 'Выберите {field}',
 );

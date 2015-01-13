@@ -17,6 +17,12 @@
  * NOTE, this file must be saved in UTF-8 encoding.
  */
 return array (
+  '--choose--' => '--выберите--',
+  'Please, {login} or {register} for commenting!' => 'Пожалуйста, {login} или {register} для комментирования!',
+  'login' => 'авторизуйтесь',
+  'register' => 'зарегистрируйтесь',
+  'Guest can comment ?' => 'Гости могут комментировать ?',
+  'reply' => 'ответить',
   '0.5' => '0.5',
   'Email' => 'Email',
   'Email for notifications' => 'Email для уведомлений?',
@@ -102,4 +108,13 @@ Comment text:  {comment}' =>   'На вашем сайте добавлен ко
   'create' => 'добавление',
   'are require.' => 'обязательны.',
   'manage' => 'управление',
+  'Antispam interval' => 'Интервал (в секундах) для защиты от спама',
+  'Spam protection, try to create comment after {few} seconds!'=>'Защита от спама, попробуйте добавить комментарий спустя {few} секнд!',
+  'Last comments' => 'Последние комментарии',
+  'Reply' => 'Ответить',
+  'Be first!' => 'Станьте первым!',
+  'There is an error when create comments, try again later.'=>'При добавлении комментария возникла ошибка, повторите попытку позже.',
+  'WRITE COMMENT'=>' НАПИСАТЬ КОММЕНТАРИЙ',
+  'From user' => 'От имени',
+  'Insert symbols you see on picture'=>'Введите цифры указанные на картинке',
 );

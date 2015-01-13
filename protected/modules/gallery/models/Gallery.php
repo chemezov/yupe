@@ -1,4 +1,17 @@
 <?php
+/**
+ * Gallery
+ *
+ * Модель для работы с галереями
+ *
+ * @author yupe team <team@yupe.ru>
+ * @link http://yupe.ru
+ * @copyright 2009-2013 amyLabs && Yupe! team
+ * @package yupe.modules.gallery.models
+ * @since 0.1
+ *
+ */
+
 
 /**
  * This is the model class for table "Gallery".
@@ -9,7 +22,7 @@
  * @property string $description
  * @property integer $status
  */
-class Gallery extends YModel
+class Gallery extends yupe\models\YModel
 {
     const STATUS_DRAFT    = 0;
     const STATUS_PUBLIC   = 1;
@@ -42,11 +55,11 @@ class Gallery extends YModel
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
+            array('name, description', 'filter', 'filter' => array(new CHtmlPurifier(), 'purify')),
             array('name, description, owner', 'required'),
             array('status, owner', 'numerical', 'integerOnly' => true),
-            array('name', 'length', 'max' => 250),            
-            // The following rule is used by search().
-            // Please remove those attributes that should not be searched.
+            array('name', 'length', 'max' => 250),
+            array('status', 'in', 'range' => array_keys($this->getStatusList())),
             array('id, name, description, status, owner', 'safe', 'on' => 'search'),
         );
     }
@@ -75,8 +88,9 @@ class Gallery extends YModel
     public function beforeValidate()
     {
         // Проверяем наличие установленного хозяина галереи
-        if (isset($this->owner) && empty($this->owner))
+        if (isset($this->owner) && empty($this->owner)){
             $this->owner = Yii::app()->user->getId();
+        }
 
         return parent::beforeValidate();
     }
@@ -92,6 +106,7 @@ class Gallery extends YModel
             'owner'       => Yii::t('GalleryModule.gallery', 'Vendor'),
             'description' => Yii::t('GalleryModule.gallery', 'Description'),
             'status'      => Yii::t('GalleryModule.gallery', 'Status'),
+            'imagesCount' => Yii::t('GalleryModule.gallery', 'Images count'),
         );
     }
 
@@ -127,7 +142,7 @@ class Gallery extends YModel
 
     public function getStatus()
     {
-        $data = $this->statusList;
+        $data = $this->getStatusList();
         return isset($data[$this->status]) ? $data[$this->status] : Yii::t('GalleryModule.gallery', '*неизвестно*');
     }
 
@@ -151,7 +166,7 @@ class Gallery extends YModel
      * 
      * @return string image Url
      **/
-    public function previewImage($width = 190, $height = 0)
+    public function previewImage($width = 190, $height = 190)
     {
         return $this->imagesCount > 0
             ? $this->images[0]->getUrl($width, $height)
@@ -202,20 +217,6 @@ class Gallery extends YModel
     }
 
     /**
-     * Список статусов опубликованых галерей
-     *
-     * @return array of published status
-     **/
-    public function getPublishedStatus()
-    {
-        return array(
-            Gallery::STATUS_PERSONAL,
-            Gallery::STATUS_PRIVATE,
-            Gallery::STATUS_PUBLIC,
-        );
-    }
-
-    /**
      * Именованные условия
      *
      * @return array of scopes
@@ -224,7 +225,10 @@ class Gallery extends YModel
     {
         return array(
             'published' => array(
-                'condition'=>'status IN (' . implode(', ', $this->publishedStatus) . ')',
+                'condition'=>'status  = :status',
+                'params' => array(
+                    ':status' => self::STATUS_PUBLIC
+                )
             ),
         );
     }

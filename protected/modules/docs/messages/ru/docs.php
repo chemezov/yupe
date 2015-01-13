@@ -17,6 +17,8 @@
  * NOTE, this file must be saved in UTF-8 encoding.
  */
 return array (
+  'Install' => 'Установка',
+  'Creating module' => 'Создание модуля',
   '0.2' => '0.2',
   'IDE/Editors' => 'IDE/Редакторы',
   'YupeTeam' => 'YupeTeam',
@@ -73,4 +75,5 @@ return array (
   'Yupe!' => 'Юпи!',
   'Yupe! Documentation' => 'Юпи! Документация',
   'Comment' => 'Комментарии',
+  'Set testing environment'=>'Настройка тестового окружения'
 );

@@ -1,12 +1,12 @@
-<?php $this->pageTitle = Yii::t('blog', 'Список записей'); ?>
+<?php $this->pageTitle = Yii::t('BlogModule.blog', 'Posts list with tag "{tag}"', array('{tag}' => CHtml::encode($tag))); ?>
 
 <?php $this->breadcrumbs = array(
-    Yii::t('blog', 'Блоги') => array('/blog/blog/index/'),
-    Yii::t('blog', 'список записей'),
+    Yii::t('BlogModule.blog', 'Blogs') => array('/blog/blog/index/'),
+    Yii::t('BlogModule.blog', 'Posts list'),
 ); ?>
 
-<p><?php echo Yii::t('blog', 'Записи с меткой'); ?> <strong><?php echo $tag; ?></strong>...</p>
+<p><?php echo Yii::t('BlogModule.blog', 'Posts with tag'); ?> <strong><?php echo CHtml::encode($tag); ?></strong>...</p>
 
 <?php foreach($posts as $post):?>
-    <?php $this->renderPartial('_view', array('data' => $post)); ?>
+    <?php $this->renderPartial('_post', array('data' => $post)); ?>
 <?php endforeach;?>

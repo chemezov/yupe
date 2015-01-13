@@ -1,38 +1,56 @@
-<div id="comments">
-<?php if(count($comments)):?>
-    <?php if (!$this->comment):?>
-        <strong><?php echo $this->label; ?> <?php echo count($comments); ?></strong>
-        <?php echo CHtml::link(CHtml::image(Yii::app()->theme->baseUrl.'/web/images/rss.png'),array('/comment/rss/feed','model' => $this->model, 'modelId' => $this->modelId));?>
+<?php Yii::import('application.modules.comment.CommentModule'); ?>
+
+<div id="comments" class="comments-list">
+    <?php if(count($comments)):?>   
+        <h2>
+            <small>
+            <?php echo $this->label; ?> <?php echo count($comments); ?>
+            <?php echo CHtml::link(
+                CHtml::image(
+                    Yii::app()->getAssetManager()->publish(
+                        Yii::app()->theme->basePath) . '/web/images/rss.png'
+                ), array(
+                    '/comment/commentRss/feed',
+                    'model'   => $this->model,
+                    'modelId' => $this->modelId
+                )
+               );
+            ?>
+            </small>
+        </h2>         
+
+        <?php foreach ($comments as $comment):?>            
+                <?php $level = $comment->getLevel();?>
+                <div class="comments-item <?php echo $level == 0 ? '' : 'comments-item-child'?>" style="margin-left: <?php echo (30 * $level); ?>px;">
+                    <div class="comments-item-main" id="comment-<?php echo $comment->id;?>"  level="<?php echo $level; ?>">
+                        <div class="comments-item-avatar">
+                            <a href="<?php echo $comment->getAuthorUrl()?>"><?php echo $comment->getAuthorAvatar();?></a>
+                        </div>     
+                        <div class="comments-item-top">
+                            <div class="comments-item-author">
+                                <?php echo $comment->getAuthorLink();?>
+                                <span class='comments-item-date'>
+                                    <time datetime="<?php echo str_replace(' ', '_', $comment->creation_date); ?>"><?php echo Yii::app()->getDateFormatter()->formatDateTime($comment->creation_date, "long", "short"); ?></time>
+                                </span>
+                            </div>                                                    
+                        </div>
+                        <div class="comments-item-message">
+                            <?php echo trim($comment->getText()) ;?>
+                            <div>
+                                <?php echo CHtml::link(
+                                        Yii::t('CommentModule.comment','reply'), 'javascript:void(0);', array(
+                                            'rel'     => $comment->id,
+                                            'data-id' => $comment->id . '_' . str_replace(' ', '_', $comment->creation_date),
+                                            'class'   => 'reply',
+                                            'title'   => Yii::t('CommentModule.comment','Reply')
+                                       ));
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        <?php endforeach;?>
+    <?php else:?>        
+        <p><?php echo Yii::t('CommentModule.comment','Be first!');?></p>
     <?php endif;?>
-
-    <?php foreach ($comments as $comment):?>
-
-        <?php if(!$this->comment && is_object($comment)):?>
-            <?php $level = $comment->level-2; ?>
-        <?php else:?>
-            <?php $comment = $this->comment;?>
-            <?php $level = 1;?>
-        <?php endif;?>
-            <div class="well well-small comment-body" id="comment_<?php echo $comment->id;?>_<?php echo str_replace(' ', '_', $comment->creation_date); ?>" style="margin-left: <?php echo (20 * $level); ?>px; " level="<?php echo $level; ?>">
-                    <a class="pull-left" href="<?php echo $comment->getAuthorUrl()?>"><?php echo $comment->getAuthorAvatar();?></a> 
-                    <ul>
-                        <li><?php echo $comment->getAuthorLink();?></li>
-                        <li class="time icon-time"><time datetime="<?php echo str_replace(' ', '_', $comment->creation_date); ?>"><?php echo Yii::app()->getDateFormatter()->formatDateTime($comment->creation_date, "long", "short"); ?></time></li>
-                        <li class="comment-botton-right">
-                            <?php echo CHtml::link(
-                            '<i class="icon-bullhorn"></i>', 'javascript:void(0);', array(
-                                'rel'     => $comment->id,
-                                'data-id' => $comment->id . '_' . str_replace(' ', '_', $comment->creation_date),
-                                'class'   => 'commentParrent',
-                                'title'   => Yii::t('comment','Ответить')
-                            ));?>
-                        </li>
-                    </ul>
-                <p><?php echo $comment->getText() ;?></p>
-            </div>
-    <?php endforeach;?>
-<?php else:?>
-    <p><?php echo $this->label; ?> <?php echo Yii::t('comment', 'пока нет, станьте первым!');?>
-<?php endif;?>
-
 </div>

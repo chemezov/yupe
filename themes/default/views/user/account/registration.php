@@ -1,9 +1,9 @@
 <?php
-$this->pageTitle = Yii::t('user', 'Регистрация');
-$this->breadcrumbs = array('Регистрация');
+$this->pageTitle = Yii::t('UserModule.user', 'Sign up');
+$this->breadcrumbs = array(Yii::t('UserModule.user', 'Sign up'));
 ?>
 
-<?php $this->widget('application.modules.yupe.widgets.YFlashMessages'); ?>
+<?php $this->widget('yupe\widgets\YFlashMessages'); ?>
 
 <?php $form = $this->beginWidget(
     'bootstrap.widgets.TbActiveForm',
@@ -53,22 +53,33 @@ $this->breadcrumbs = array('Регистрация');
     <div class='row-fluid control-group <?php echo $model->hasErrors('verifyCode') ? 'error' : ''; ?>'>
         <?php echo $form->textFieldRow($model, 'verifyCode', array('class' => 'span3', 'required' => true)); ?>
         <span class="help-block">
-            <?php echo Yii::t('UserModule.user', 'Введите текст указанный на картинке'); ?>
+            <?php echo Yii::t('UserModule.user', 'Please enter the text from the image'); ?>
         </span>
     </div>
 <?php endif; ?>
 
-<div class="row-fluid  control-group">
+<div class="row-fluid control-group">
     <?php
     $this->widget(
         'bootstrap.widgets.TbButton',
         array(
             'buttonType' => 'submit',
             'type' => 'primary',
-            'label' => Yii::t('UserModule.user', 'Зарегистрироваться'),
+            'label' => Yii::t('UserModule.user', 'Sign up'),
         )
     ); ?>
 </div>
+
+<hr/>
+
+<?php if(Yii::app()->hasModule('social')):?>
+<div class="row-fluid control-group">
+    <?php $this->widget('vendor.nodge.yii-eauth.EAuthWidget', array(
+        'action' => '/social/login',
+        'predefinedServices' => array('google', 'facebook', 'vkontakte', 'twitter', 'github', 'yandex'),
+    )); ?>
+</div>
+<?php endif;?>
 
 <?php $this->endWidget(); ?>
 <!-- form -->

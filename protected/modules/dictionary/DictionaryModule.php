@@ -12,6 +12,8 @@
 
 class DictionaryModule extends yupe\components\WebModule
 {
+    const VERSION = '0.7';
+
     public function getDependencies()
     {
         return array(
@@ -58,18 +60,23 @@ class DictionaryModule extends yupe\components\WebModule
 
     public function getVersion()
     {
-        return Yii::t('DictionaryModule.dictionary', '0.2');
+        return self::VERSION;
+    }
+
+    public function getAdminPageLink()
+    {
+        return '/dictionary/dictionaryBackend/index';
     }
 
     public function getNavigation()
     {
         return array(
             array('label' => Yii::t('DictionaryModule.dictionary', 'Dictionaries')),
-            array('icon' => 'list-alt', 'label' => Yii::t('DictionaryModule.dictionary', 'Dictionaries list'), 'url' => array('/dictionary/default/index')),
-            array('icon' => 'plus-sign', 'label' => Yii::t('DictionaryModule.dictionary', 'Create dictionary'), 'url' => array('/dictionary/default/create')),
+            array('icon' => 'list-alt', 'label' => Yii::t('DictionaryModule.dictionary', 'Dictionaries list'), 'url' => array('/dictionary/dictionaryBackend/index')),
+            array('icon' => 'plus-sign', 'label' => Yii::t('DictionaryModule.dictionary', 'Create dictionary'), 'url' => array('/dictionary/dictionaryBackend/create')),
             array('label' => Yii::t('DictionaryModule.dictionary', 'Items')),
-            array('icon' => 'list-alt', 'label' => Yii::t('DictionaryModule.dictionary', 'Items list'), 'url' => array('/dictionary/dictionaryData/index')),
-            array('icon' => 'plus-sign', 'label' => Yii::t('DictionaryModule.dictionary', 'Create item'), 'url' => array('/dictionary/dictionaryData/create')),
+            array('icon' => 'list-alt', 'label' => Yii::t('DictionaryModule.dictionary', 'Items list'), 'url' => array('/dictionary/dictionaryDataBackend/index')),
+            array('icon' => 'plus-sign', 'label' => Yii::t('DictionaryModule.dictionary', 'Create item'), 'url' => array('/dictionary/dictionaryDataBackend/create')),
         );
     }
 

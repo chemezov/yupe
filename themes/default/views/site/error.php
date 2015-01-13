@@ -1,21 +1,21 @@
 
-<?php $this->pageTitle = Yii::t('site','Ошибка') . ' ' . $error['code'] . ' - ' . $this->yupe->siteName; ?>
+<?php $this->pageTitle = Yii::t('default','Error') . ' ' . $error['code'] . ' - ' . $this->yupe->siteName; ?>
 
-<h2><?php echo Yii::t('site','Ошибка') . ' ' . $error['code']; ?>!</h2>
+<h2><?php echo Yii::t('default','Error') . ' ' . $error['code']; ?>!</h2>
 
 <?php
     switch ($error['code']) {
         case '404':
             $msg = Yii::t(
-                'site',
-                'Страница которую Вы запросили не найдена. Вы можете покинуть данную страницу и {link}.',
+                'default',
+                'Page you try to request, was not found. You can go out from this page and {link}.',
                 array(
                     '{link}' => CHtml::link(
-                        Yii::t('site','перейти на главную страницу сайта'),
+                        Yii::t('default','go to home page'),
                         $this->createUrl("/" . Yii::app()->defaultController . '/index'),
                         array(
-                            'title' => Yii::t('site','Перейти на главную страницу сайта'),
-                            'alt'   => Yii::t('site','Перейти на главную страницу сайта'),
+                            'title' => Yii::t('default','go to home page'),
+                            'alt'   => Yii::t('default','go to home page'),
                         )
                     ),
                         
@@ -28,14 +28,6 @@
     }
 ?>
 
-<?php $this->widget(
-    'bootstrap.widgets.TbBox',
-    array(
-        'title' => $error['code'],
-        'headerIcon' => 'icon-error',
-        'content' => $msg,
-    )
-);?>
 <p class="alert alert-error">
     <?php echo $msg;?>
 </p>

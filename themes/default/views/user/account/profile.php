@@ -1,6 +1,6 @@
 <?php
-$this->pageTitle = Yii::t('user', 'Профиль пользователя');
-$this->breadcrumbs = array(Yii::t('user', 'Профиль пользователя'));
+$this->pageTitle = Yii::t('UserModule.user', 'User profile');
+$this->breadcrumbs = array(Yii::t('UserModule.user', 'User profile'));
 
 Yii::app()->clientScript->registerCss('profile', "
     input.confirmed { border: 1px solid #88d395; }
@@ -60,7 +60,7 @@ $form = $this->beginWidget(
         </div>
         <div class="span4">
             <?php echo $form->checkBoxRow($model, 'use_gravatar', array(
-                'hint'=> Yii::t('user','Если вы не пользуетесь Gravatar выберите аватарку из файла.')
+                'hint'=> Yii::t('UserModule.user','If you do not use Gravatar feel free to upload your own.')
             )); ?>
             
             <?php echo $form->fileFieldRow($model, 'avatar'); ?>
@@ -70,27 +70,19 @@ $form = $this->beginWidget(
     <div class="row-fluid">
         <?php echo $form->textFieldRow($model, 'email', array(
             'autocomplete' => 'off',
-            'class'=>'span6' . ( (Yii::app()->user->profile->email_confirm && !$model->hasErrors()) ? ' confirmed' : '' )
+            'class'=>'span6' . ( (Yii::app()->user->profile->getIsVerifyEmail() && !$model->hasErrors()) ? ' confirmed' : '' )
         )); ?>
 
-        <?php if (Yii::app()->user->profile->email_confirm && !$model->hasErrors()):?>
+        <?php if (Yii::app()->user->profile->getIsVerifyEmail() && !$model->hasErrors()):?>
             <p class="email-status-confirmed text-success">
-                <?php echo Yii::t('user',"E-Mail проверен");?>
+                <?php echo Yii::t('UserModule.user','E-mail was verified');?>
             </p>
         <?php elseif( !$model->hasErrors() ):?>
             <p class="email-status-not-confirmed text-error">
-                <?php echo Yii::t('user','e-mail не подтвержден, проверьте почту!');?>
+                <?php echo Yii::t('UserModule.user','e-mail was not confirmed, please check you mail!');?>
             </p>
         <?php endif?>
-
-
-        <div class="row-fluid email-change-msg">
-            <?php if (Yii::app()->user->profile->email_confirm):?>
-                <p class="text-warning span6">
-                    <?php echo Yii::t('user','Внимание! После смены e-mail адреса, вам будет выслано письмо для его подтверждения.');?>
-                </p>
-            <?php endif;?>
-        </div>
+       
     </div>
 
 
@@ -144,7 +136,7 @@ $form = $this->beginWidget(
     
     <div class="row-fluid">
         <p class="password-change-msg muted span6">
-            <?php echo Yii::t('user','Оставьте поля пустыми если не меняете пароль');?>
+            <?php echo Yii::t('UserModule.user','If you do not want to change password, leave fields empty.');?>
         </p>
     </div>
     
@@ -155,7 +147,7 @@ $form = $this->beginWidget(
     <div class="row-fluid">
         <?php echo $form->passwordFieldRow($model, 'cPassword', array('class'=>'span6','autocomplete' => 'off'));?>
         <label class="checkbox">
-            <input type="checkbox" value="1" id="show_pass"> <?php echo Yii::t('user','показать пароль') ?>
+            <input type="checkbox" value="1" id="show_pass"> <?php echo Yii::t('UserModule.user','show password') ?>
         </label>
     </div>
         
@@ -167,12 +159,20 @@ $form = $this->beginWidget(
 
     <div class="row-fluid  control-group">
         
+         <div class="row-fluid email-change-msg">
+            <?php if (Yii::app()->user->profile->getIsVerifyEmail()) : ?>
+                <p class="text-warning span6">
+                    <?php echo Yii::t('UserModule.user','Warning! After changing your e-mail you will receive a message explaining how to verify it');?>
+                </p>
+            <?php endif;?>
+        </div>  
+        
     <?php $this->widget(
         'bootstrap.widgets.TbButton',
         array(
             'buttonType' => 'submit',
             'type' => 'primary',
-            'label' => Yii::t('user','Сохранить профиль'),
+            'label' => Yii::t('UserModule.user','Save profile'),
         )
     ); ?>
 

@@ -5,7 +5,7 @@ class RegistrationPage
     // include url of current page
     const URL = '/registration';
 
-    public static $buttonLabel = 'Зарегистрироваться';
+    public static $buttonLabel = 'Регистрация';
 
     public static $nickNameField = 'RegistrationForm[nick_name]';
 

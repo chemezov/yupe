@@ -1,4 +1,20 @@
 jQuery(document).ready(function($){
+    // Сериализация формы в объект:
+    $.fn.serializeObject = function() {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
 
     $('body').addClass('admin-panel');
 
@@ -65,7 +81,9 @@ function ajaxSetStatus(elem, id) {
     $.ajax({
         url: $(elem).attr('href'),
         success: function() {
-            $('#'+id).yiiGridView.update(id);
+            $('#'+id).yiiGridView.update(id, {
+                data : $('#'+id+'>.keys').attr('title')
+            });
         }
     });
 }
@@ -102,7 +120,7 @@ function sendFlush(link) {
         dataType: 'json',
         error: function(data) {
             $(myDialog).find('.modal-body').html(
-                typeof data.data == 'undefined' ? actionToken.error : data.data
+                 data.data ? data.data : actionToken.error
             );
             $(myDialog).find('div.modal-footer a.btn').show();
             $(myDialog).find('div.modal-footer img').hide();

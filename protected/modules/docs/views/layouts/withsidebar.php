@@ -15,7 +15,7 @@ $this->beginContent("docs.views.layouts.docs");
         <!-- breadcrumbs -->
         <?php $this->widget('bootstrap.widgets.TbBreadcrumbs', array('links' => $this->breadcrumbs, 'homeLink' => false)); ?>
         <!-- /breadcrumbs -->
-        <?php $this->widget('YFlashMessages');?>
+        <?php $this->widget('yupe\widgets\YFlashMessages');?>
         <div id="content">
             <?php echo $content; ?>
         </div>
@@ -23,7 +23,7 @@ $this->beginContent("docs.views.layouts.docs");
         <br/>
 
         <div class="alert alert-warning">
-            Документация не полная? Устарела ? Вы нашли ошибку ? Хотите добавить свою статью ?
+            Документация не полная? Устарела ? вы нашли ошибку ? Хотите добавить свою статью ?
             <a href="https://github.com/yupe/yupe">Помогите нам !</a>
         </div>
 
@@ -37,7 +37,7 @@ $this->beginContent("docs.views.layouts.docs");
         <div id="footer-guard"><!-- --></div>
     </div>
     <div class="span3">
-        <div class="well" style="padding: 8px 0;">
+        <div class="well">
             <?php
             $this->widget(
                 'bootstrap.widgets.TbMenu', array(
@@ -46,7 +46,14 @@ $this->beginContent("docs.views.layouts.docs");
                 )
             ); ?>
         </div>
-        <div class="well" style="padding: 8px;"><?php $this->widget('YModuleInfo'); ?></div>
+        <div class="well" style="padding: 8px;"><?php $this->widget('yupe\widgets\YModuleInfo'); ?></div>
+        <div class="alert alert-notice">
+            <strong><?php echo Yii::app()->name;?></strong> разрабатывается <a href="https://github.com/yupe/yupe/graphs/contributors" target="_blank">сообществом</a> при моральной поддержке <?php echo CHtml::link('amyLabs','http://amylabs.ru', array('target' => '_blank'));?>!
+            <strong><?php echo CHtml::link('Напишите нам', 'http://amylabs.ru/contact')?></strong> при возникновении проблем!
+        </div>
+        <div>
+            <a href="http://amylabs.ru?from=yupe-docs" target="_blank"><?php echo CHtml::image('http://yupe.ru/web/images/amyLabs.jpg', 'amylabs - разработка и поддержка проектов на Юпи! и Yiiframework');?></a>
+        </div>
     </div>
   </div>
 <?php $this->endContent(); ?>

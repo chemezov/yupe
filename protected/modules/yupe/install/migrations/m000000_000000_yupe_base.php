@@ -1,11 +1,10 @@
 <?php
 /**
- * FileDocComment
  * Yupe install migration
- * Класс миграций для модуля Yupe:
+ * Класс миграций для модуля Yupe
  *
  * @category YupeMigration
- * @package  yupe
+ * @package yupe.modules.user.install.migrations
  * @author   YupeTeam <team@yupe.ru>
  * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
  * @link     http://yupe.ru
@@ -41,6 +40,7 @@ class m000000_000000_yupe_base extends yupe\components\DbMigration
 
         //fk
         $this->addForeignKey("fk_{{yupe_settings}}_user_id", '{{yupe_settings}}', 'user_id', '{{user_user}}', 'id', 'SET NULL', 'NO ACTION');
+
     }
  
     /**

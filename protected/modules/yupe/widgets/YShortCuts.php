@@ -3,18 +3,22 @@
  * Виджет панели быстрого запуска:
  *
  * @category YupeWidget
- * @package  yupe
+ * @package  yupe.modules.yupe.widgets
  * @author   AKulikov <tuxuls@gmail.com>
  * @license  BSD http://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F_BSD
  * @version  0.1
  * @link     http://yupe.ru
  *
  **/
+namespace yupe\widgets;
+use CHtml;
+
 class YShortCuts extends YWidget
 {
     public $shortcuts;
     public $modules;
     public $updates;
+    public $view = 'yupe.views.widgets.YShortCuts.shortcuts';
     private $_baseShortCutClass = 'shortcut';
     
     /**
@@ -24,7 +28,7 @@ class YShortCuts extends YWidget
      **/
     public function run()
     {
-        $this->render('yupe.views.widgets.YShortCuts.shortcuts');
+        $this->render($this->view);
     }
 
     /**
@@ -37,7 +41,7 @@ class YShortCuts extends YWidget
     public function getIcons($icon)
     {
         return ($icons = explode(' ', $icon)) && count($icons) > 0
-            ? 'icon-'.implode(' icon-', explode(' ', $icon))
+            ? 'fa-'.implode(' fa-', explode(' ', $icon))
             : '';
     }
 
@@ -74,7 +78,7 @@ class YShortCuts extends YWidget
      **/
     public function getLabel($shortcut)
     {
-        return CHtml::tag('i', array('class' => "shortcut-icon " . $this->getIcons($shortcut['icon'])), '')
+        return CHtml::tag('i', array('class' => "shortcut-icon fa " . $this->getIcons($shortcut['icon'])), '')
              . CHtml::tag('span', array('class' => 'shortcut-label'), $shortcut['label']);
     }
 
@@ -93,7 +97,7 @@ class YShortCuts extends YWidget
                     && count($this->updates[$name]) > 0
                 )
             ? ''
-            : "<span class='label label-info'><i class='icon-spin icon-repeat'></i>&nbsp;"
+            : "<span class='label label-info'><i class='fa fa-spin fa-repeat'></i>&nbsp;"
              . count($this->updates[$name])
              . "</span>";
     }

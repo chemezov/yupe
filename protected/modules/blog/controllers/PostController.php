@@ -14,11 +14,7 @@ class PostController extends yupe\components\controllers\FrontController
 
     public function actionIndex()
     {
-        $posts = Post::model()->with('blog','createUser')->published()->public()->findAll(array(
-                'order' => 'publish_date DESC'
-            ));
-
-        $this->render('index', array('posts' => $posts));
+        $this->render('index', array('model' => Post::model()));
     }
 
     /**
@@ -30,13 +26,7 @@ class PostController extends yupe\components\controllers\FrontController
      */
     public function actionShow($slug)
     {
-        $post = Post::model()->with(
-            'blog', 'createUser', 'comments.author'
-        )->find(
-            't.slug = :slug', array(
-                ':slug' => $slug
-            )
-        );
+        $post = Post::model()->get($slug, array('blog', 'createUser', 'comments.author'));
 
         if (null === $post){
             throw new CHttpException(404, Yii::t('BlogModule.blog', 'Post was not found!'));
@@ -49,25 +39,22 @@ class PostController extends yupe\components\controllers\FrontController
      * Показываем посты по тегу
      * 
      * @param string $tag - Tag поста
-     * 
+     * @throws CHttpException
      * @return void
      */
     public function actionList($tag)
     {
         $tag = CHtml::encode($tag);
 
-        $posts = Post::model()->with(
-            'blog',
-            'createUser'
-        )->published()->public()->taggedWith($tag)->findAll();
+        $posts = Post::model()->getByTag($tag);
 
-        $this->render(
-            'list', array(
-                'posts' => $posts,
-                'tag'   => $tag,
-            )
-        );
+        if(empty($posts)) {
+            throw new CHttpException(404, Yii::t('BlogModule.blog', 'Posts not found!'));
+        }
+
+        $this->render('list', array('posts' => $posts,'tag' => $tag));
     }
+
 
     public function actionBlog($slug)
     {
@@ -77,28 +64,39 @@ class PostController extends yupe\components\controllers\FrontController
             throw new CHttpException(404);
         }
 
-        $posts = new Post('search');
-        $posts->unsetAttributes();
-        $posts->blog_id = $blog->id;
-
-        $this->render('blog-post',array('target' => $blog,'posts' => $posts));
+        $this->render('blog-post',array('target' => $blog,'posts' => $blog->getPosts()));
     }
 
+    public function actionView($id)
+    {
+        $id = (int)$id;
+
+        if(!$id) {
+            throw new CHttpException(404, Yii::t('BlogModule.blog', 'Page was not found!'));        
+        } 
+
+        $post = Post::model()->get($id);
+
+        if(null === $post) {
+            throw new CHttpException(404, Yii::t('BlogModule.blog', 'Page was not found!'));   
+        }
+
+        $this->redirect(array('/blog/post/show', 'slug' => $post->slug), true, 301);
+    }
 
     public function actionCategory($alias)
     {
-        $category = Category::model()->cache($this->yupe->coreCacheTime)->find('alias = :alias',array(
-                ':alias' => $alias
-            ));
+        $category = Category::model()->getByAlias($alias);
 
         if(null === $category){
             throw new CHttpException(404, Yii::t('BlogModule.blog', 'Page was not found!'));
         }
 
-        $posts = new Post('search');
-        $posts->unsetAttributes();
-        $posts->category_id = $category->id;
+        $this->render('category-post',array('target' => $category,'posts' => Post::model()->getForCategory($category->id)));
+    }
 
-        $this->render('blog-post',array('target' => $category,'posts' => $posts));
+    public function actionCategorys()
+    {   
+        $this->render('categorys', array('categorys' => Post::model()->getCategories()));
     }
 }

@@ -15,12 +15,13 @@ use yupe\components\WebModule;
 
 class NewsModule extends WebModule
 {
+    const VERSION = '0.7';
+
     public $uploadPath        = 'news';
     public $allowedExtensions = 'jpg,jpeg,png,gif';
     public $minSize           = 0;
     public $maxSize           = 5368709120;
-    public $maxFiles          = 1;
-    public $mainCategory;
+    public $maxFiles          = 1;   
     public $rssCount          = 10;
     public $perPage           = 10;
 
@@ -32,15 +33,10 @@ class NewsModule extends WebModule
         );
     }
 
-    public function getUploadPath()
-    {
-        return Yii::getPathOfAlias('webroot') . '/' . Yii::app()->getModule('yupe')->uploadPath . '/' . $this->uploadPath . '/';
-    }
-
     public function getInstall()
     {
-        if(parent::getInstall()) {
-            @mkdir($this->getUploadPath(),0755);
+        if (parent::getInstall()) {
+            @mkdir(Yii::app()->uploadManager->getBasePath() . DIRECTORY_SEPARATOR . $this->uploadPath, 0755);
         }
 
         return false;
@@ -50,7 +46,7 @@ class NewsModule extends WebModule
     {
         $messages = array();
 
-        $uploadPath = $this->getUploadPath();
+        $uploadPath = Yii::app()->uploadManager->getBasePath() . DIRECTORY_SEPARATOR . $this->uploadPath;
 
         if (!is_writable($uploadPath))
             $messages[WebModule::CHECK_ERROR][] =  array(
@@ -97,9 +93,39 @@ class NewsModule extends WebModule
         );
     }
 
+    public function getEditableParamsGroups()
+    {
+        return array(
+            'main' => array(
+                'label' => Yii::t('NewsModule.news', 'General module settings'),
+                'items' => array(
+                    'adminMenuOrder',
+                    'editor',
+                    'mainCategory'
+                )
+            ),
+            'images' => array(
+                'label' => Yii::t('NewsModule.news', 'Images settings'),
+                'items' => array(
+                    'uploadPath',
+                    'allowedExtensions',
+                    'minSize',
+                    'maxSize'
+                )
+            ),
+            'list' => array(
+                'label' => Yii::t('NewsModule.news', 'News lists'),
+                'items' => array(
+                    'rssCount',
+                    'perPage'
+                )
+            ),
+        );
+    }
+
     public function getVersion()
     {
-        return Yii::t('NewsModule.news', '0.5');
+        return self::VERSION;
     }
 
     public function getIsInstallDefault()
@@ -142,25 +168,18 @@ class NewsModule extends WebModule
         return "leaf";
     }
 
+    public function getAdminPageLink()
+    {
+        return '/news/newsBackend/index';
+    }
+
     public function getNavigation()
     {
         return array(
-            array('icon' => 'list-alt', 'label' => Yii::t('NewsModule.news', 'News list'), 'url' => array('/news/default/index')),
-            array('icon' => 'plus-sign', 'label' => Yii::t('NewsModule.news', 'Create article'), 'url' => array('/news/default/create')),
+            array('icon' => 'list-alt', 'label' => Yii::t('NewsModule.news', 'News list'), 'url' => array('/news/newsBackend/index')),
+            array('icon' => 'plus-sign', 'label' => Yii::t('NewsModule.news', 'Create article'), 'url' => array('/news/newsBackend/create')),
+            array('icon' => 'icon-folder-open', 'label' => Yii::t('NewsModule.news', 'News categories'), 'url' => array('/category/categoryBackend/index', 'Category[parent_id]' => (int)$this->mainCategory)),
         );
-    }
-
-    public function getCategoryList()
-    {
-        $criteria = ($this->mainCategory)
-            ? array(
-                'condition' => 'id = :id OR parent_id = :id',
-                'params'    => array(':id' => $this->mainCategory),
-                'order'     => 'id ASC',
-            )
-            : array();
-
-        return Category::model()->findAll($criteria);
     }
 
     public function isMultiLang()
@@ -173,8 +192,7 @@ class NewsModule extends WebModule
         parent::init();
 
         $this->setImport(array(
-            'news.models.*',
-            'news.components.*',
+            'news.models.*'            
         ));
     }
 }

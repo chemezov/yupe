@@ -1,6 +1,12 @@
 <?php
 
 /**
+ *
+ * @package  yupe.modules.yupe.models
+ *
+*/
+
+/**
  * This is the model class for table "Settings".
  *
  * The followings are the available columns in table 'Settings':
@@ -15,6 +21,16 @@
  * The followings are the available model relations:
  * @property User $user
  */
+namespace yupe\models;
+
+use Yii;
+use CDbExpression;
+use CDbCriteria;
+use CActiveDataProvider;
+use CMap;
+use TagsCache;
+
+
 class Settings extends YModel
 {
     /*
@@ -66,15 +82,19 @@ class Settings extends YModel
     {
         $this->change_date = new CDbExpression('NOW()');
 
-        if ($this->isNewRecord)
+        if ($this->isNewRecord) {
             $this->creation_date = $this->change_date;
+        }
+		
 
-        if (!isset($this->user_id))
-            $this->user_id = Yii::app()->user->getId();
-
-        if ($this->user_id !== Yii::app()->user->getId())
-            $this->user_id = Yii::app()->user->getId();
-
+        // Пользователя можно получить только для веб-приложения
+        if (YII_APP_TYPE == 'web')
+        {        	
+        	$this->user_id = Yii::app()->user->getId();        	
+        }
+        else
+        	$this->user_id = null;        
+        
         return parent::beforeSave();
     }
 
@@ -115,7 +135,7 @@ class Settings extends YModel
         // Warning: Please modify the following code to remove attributes that
         // should not be searched.
 
-        $criteria = new CDbCriteria;
+        $criteria = new CDbCriteria();
 
         $criteria->compare('id', $this->id, true);
         $criteria->compare('module_id', $this->module_id, true);
@@ -135,7 +155,7 @@ class Settings extends YModel
      * @param mixed $params Список параметров, которые требуется прочитать
      * @return array Экземпляры класса Settings, соответствующие запрошенным параметрам
      */
-    public function fetchModuleSettings($moduleId, array $params = null)
+    public static function fetchModuleSettings($moduleId, array $params = null)
     {
 
         $settings = array();
@@ -146,28 +166,73 @@ class Settings extends YModel
 
             $criteria->compare("module_id", $moduleId);
             $criteria->compare("type", self::TYPE_CORE);
-            if (!empty($params))
+            if (!empty($params)) {
                 $criteria->addInCondition("param_name", $params);
+            }
 
             $dependency = new TagsCache($moduleId, 'yupe');
 
-            $q = $this->cache(Yii::app()->getModule('yupe')->coreCacheTime, $dependency)->findAll($criteria);
+            $q = Settings::model()->cache(Yii::app()->getModule('yupe')->coreCacheTime, $dependency)->findAll($criteria);
 
             if(count($q))
             {
-                foreach ($q as $s)
+                foreach ($q as $s) {
                     $settings[$s->param_name] = $s;
+                }
             }
             elseif (count($params))
             {
-                foreach($params as $param)
+                foreach($params as $param){
                     $settings[$param] = null;
+                }
             }
         }
 
         return $settings;
     }
 
+    /**
+     * Сохраняет настройки модуля
+     * @param string $module_id Идентификатор модуля
+     * @param mixed $params Массив параметров и значений которые следует сохранить (param_name => param_value)
+     * 
+     */
+    public static function saveModuleSettings($moduleId, $paramValues)
+    {
+    	foreach ($paramValues as $name=>$value)
+    	{
+    		// Получаем настройку
+    		$setting = Settings::model()->find('module_id = :module_id and param_name = :param_name', array(':module_id'=>$moduleId, ':param_name'=>$name));
+    		    		   		
+    		// Если новая запись
+    		if ($setting == null)
+    		{
+    			$setting = new Settings();
+    			$setting->module_id = $moduleId;
+    			$setting->param_name = $name;
+    		}
+    		// Если значение не изменилось то не сохраняем
+    		else
+    		if ($setting->param_value == $value)
+    		{
+    			continue;
+    		}
+    		
+    		// Присваиваем новое значение
+    		$setting->param_value = $value;
+    		
+    		// Добавляем для параметра его правила валидации
+    		$setting->rulesFromModule = Yii::app()->getModule($moduleId)->getRulesForParam($name);
+    		
+    		//Сохраняем
+    		if (!$setting->save()) {
+    			return false;
+    		}  		    		
+    	}
+    	
+    	return true;
+    }
+    
     /**
      *  Получает настройки модуля/модулей из базы данных (пользователельские)
      *
@@ -182,8 +247,9 @@ class Settings extends YModel
 
         $criteria = new CDbCriteria();
         /* Выборка всех модулей или только указанных */
-        if (!empty($modulesId))
+        if (!empty($modulesId)) {
             $criteria->addInCondition("module_id", $modulesId);
+        }
         /* Выборка для определённого пользователя: */
         $criteria->compare("user_id", $userId);
         /* Выборка параметров клиентов */
@@ -192,8 +258,9 @@ class Settings extends YModel
         $result = $this->findAll($criteria);
 
         if (count($result)) {
-            foreach ($result as $s)
+            foreach ($result as $s){
                 $settings[] = $s;
+            }
         }
 
         return $settings;

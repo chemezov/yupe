@@ -89,7 +89,7 @@ return array (
     'Created by' => '',
     'Created at' => '',
     'Sorting' => '',
-    'Save page nad close' => '',
+    'Save page and close' => '',
     'Save page and continue' => '',
     'List' => '',
     'Pages list' => '',
@@ -116,4 +116,6 @@ return array (
     'no' => '',
     'are required.' => '',
     'manage' => '',
+    'Removed' => '',
+	'Select {field}' => '',
 );

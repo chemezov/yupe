@@ -1,40 +1,60 @@
 <?php
 /**
- * Контроллер отвечающий за backend - часть
+ * Базовый класс для всех контроллеров панели управления
  * 
  * @category YupeComponents
- * @package  yupe
+ * @package  yupe.modules.yupe.components.controllers
  * @author   YupeTeam <team@yupe.ru>
  * @license  BSD https://raw.github.com/yupe/yupe/master/LICENSE
  * @version  0.6
  * @link     http://yupe.ru
- **/
+ *
+ */
 
 namespace yupe\components\controllers;
 
 use Yii;
-use YFlashMessages;
+use yupe\widgets\YFlashMessages;
 use CHttpException;
 use CActiveRecord;
 use CDbCriteria;
 use Exception;
 use CLogger;
 
+/**
+ * Class BackController
+ * @package yupe\components\controllers
+ */
 class BackController extends Controller
 {
+    /**
+     *
+     */
     const BULK_DELETE = 'delete';
 
+    // Прятать sidebar или нет:
+    /**
+     * @var bool
+     */
+    public $hideSidebar = false;
+
+    /**
+     * @return array
+     */
     public function filters()
     {
         return array(
-            array('application.modules.yupe.filters.YBackAccessControl'),
+            array('yupe\filters\YBackAccessControl'),
         );
     }
 
+    /**
+     *
+     */
     public function init()
     {
         parent::init();
-        //$this->yupe->getComponent('bootstrap');
+        $this->yupe->getComponent('bootstrap');
         $this->layout = $this->yupe->getBackendLayoutAlias();
         $backendTheme = $this->yupe->backendTheme;
         $this->setPageTitle(Yii::t('YupeModule.yupe', 'Yupe control panel!'));
@@ -42,13 +62,17 @@ class BackController extends Controller
         if ($backendTheme && is_dir(Yii::getPathOfAlias("webroot.themes.backend_" . $backendTheme))) {
             Yii::app()->theme = "backend_" . $backendTheme;
         } else {
-            Yii::app()->theme = null;
+            Yii::app()->theme = $this->yupe->theme;
             if (!$this->yupe->enableAssets) {
                 return;
             }
         }
     }
 
+    /**
+     * @param \CAction $action
+     * @return bool
+     */
     protected function beforeAction($action)
     {
         /**
@@ -71,20 +95,23 @@ class BackController extends Controller
         return parent::beforeAction($action);
     }
 
+    /**
+     * @throws \CHttpException
+     */
     public function actionMultiaction()
     {
-        if (!Yii::app()->request->isAjaxRequest || !Yii::app()->request->isPostRequest) {
+        if (!Yii::app()->getRequest()->getIsAjaxRequest() || !Yii::app()->getRequest()->getIsPostRequest()) {
             throw new CHttpException(404);
         }
 
-        $model = Yii::app()->request->getPost('model');
-        $action = Yii::app()->request->getPost('do');
+        $model = Yii::app()->getRequest()->getPost('model');
+        $action = Yii::app()->getRequest()->getPost('do');
 
         if (!isset($model, $action)) {
             throw new CHttpException(404);
         }
 
-        $items = Yii::app()->request->getPost('items');
+        $items = Yii::app()->getRequest()->getPost('items');
 
         if (!is_array($items) || empty($items)) {
             Yii::app()->ajax->success();
@@ -122,12 +149,15 @@ class BackController extends Controller
         }
     }
 
+    /**
+     * @throws \CHttpException
+     */
     public function actionActivate()
     {
-        $status = (int)Yii::app()->request->getQuery('status');
-        $id = (int)Yii::app()->request->getQuery('id');
-        $modelClass = Yii::app()->request->getQuery('model');
-        $statusField = Yii::app()->request->getQuery('statusField');
+        $status = (int)Yii::app()->getRequest()->getQuery('status');
+        $id = (int)Yii::app()->getRequest()->getQuery('id');
+        $modelClass = Yii::app()->getRequest()->getQuery('model');
+        $statusField = Yii::app()->getRequest()->getQuery('statusField');
 
         if (!isset($modelClass, $id, $status, $statusField)) {
             throw new CHttpException(404, Yii::t('YupeModule.yupe', 'Page was not found!'));
@@ -142,17 +172,20 @@ class BackController extends Controller
         $model->$statusField = $status;
         $model->update(array($statusField));
 
-        if (!Yii::app()->request->isAjaxRequest) {
+        if (!Yii::app()->getRequest()->getIsAjaxRequest()) {
             $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('index'));
         }
     }
 
+    /**
+     * @throws \CHttpException
+     */
     public function actionSort()
     {
-        $id = (int)Yii::app()->request->getQuery('id');
-        $direction = Yii::app()->request->getQuery('direction');
-        $modelClass = Yii::app()->request->getQuery('model');
-        $sortField = Yii::app()->request->getQuery('sortField');
+        $id = (int)Yii::app()->getRequest()->getQuery('id');
+        $direction = Yii::app()->getRequest()->getQuery('direction');
+        $modelClass = Yii::app()->getRequest()->getQuery('model');
+        $sortField = Yii::app()->getRequest()->getQuery('sortField');
 
         if (!isset($direction, $id, $modelClass, $sortField)) {
             throw new CHttpException(404, Yii::t('YupeModule.yupe', 'Page was not found!'));
@@ -178,7 +211,7 @@ class BackController extends Controller
         $model->update(array($sortField));
         $model_depends->update(array($sortField));
 
-        if (!Yii::app()->request->isAjaxRequest) {
+        if (!Yii::app()->getRequest()->getIsAjaxRequest()) {
             $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('index'));
         }
     }

@@ -1,12 +1,36 @@
 <?php
+/**
+ * Форма регистрации
+ *
+ * @category YupeComponents
+ * @package  yupe.modules.user.forms
+ * @author   YupeTeam <team@yupe.ru>
+ * @license  BSD http://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F_BSD
+ * @version  0.5.3
+ * @link     http://yupe.ru
+ *
+ **/
 class RegistrationForm extends CFormModel
 {
+
     public $nick_name;
     public $email;
     public $password;
     public $cPassword;
     public $verifyCode;
-    public $about;
+
+    public $disableCaptcha = false;
+
+    public function isCaptchaEnabled()
+    {
+        $module = Yii::app()->getModule('user');
+
+        if(!$module->showCaptcha || !CCaptcha::checkRequirements() || $this->disableCaptcha) {
+            return false;
+        }
+
+        return true;
+    }
 
     public function rules()
     {
@@ -14,7 +38,7 @@ class RegistrationForm extends CFormModel
 
         return array(
             array('nick_name, email', 'filter', 'filter' => 'trim'),
-            array('nick_name, email', 'filter', 'filter' => array($obj = new CHtmlPurifier(), 'purify')),
+            array('nick_name, email', 'filter', 'filter' => array(new CHtmlPurifier(), 'purify')),
             array('nick_name, email, password, cPassword', 'required'),
             array('nick_name, email', 'length', 'max' => 50),
             array('password, cPassword', 'length', 'min' => $module->minPasswordLength),
@@ -23,9 +47,9 @@ class RegistrationForm extends CFormModel
             array('cPassword', 'compare', 'compareAttribute' => 'password', 'message' => Yii::t('UserModule.user', 'Password is not coincide')),
             array('email', 'email'),
             array('email', 'checkEmail'),
-            array('verifyCode', 'YRequiredValidator', 'allowEmpty' => !$module->showCaptcha || !CCaptcha::checkRequirements(), 'message' => Yii::t('UserModule.user', 'Check code incorrect')),
-            array('verifyCode', 'captcha', 'allowEmpty' => !$module->showCaptcha || !CCaptcha::checkRequirements()),
-            array('verifyCode', 'emptyOnInvalid'),
+            array('verifyCode', 'yupe\components\validators\YRequiredValidator', 'allowEmpty' => !$this->isCaptchaEnabled(), 'message' => Yii::t('UserModule.user', 'Check code incorrect')),
+            array('verifyCode', 'captcha', 'allowEmpty' => !$this->isCaptchaEnabled()),
+            array('verifyCode', 'emptyOnInvalid')            
         );
     }
 
@@ -38,15 +62,7 @@ class RegistrationForm extends CFormModel
             'cPassword'  => Yii::t('UserModule.user', 'Password confirmation'),
             'verifyCode' => Yii::t('UserModule.user', 'Check code'),
         );
-    }
-
-    public function beforeValidate()
-    {
-        if (Yii::app()->getModule('user')->autoNick) {
-            $this->nick_name = substr(User::model()->generateSalt(), 10);
-        }
-        return parent::beforeValidate();
-    }
+    }    
 
     public function checkNickName($attribute,$params)
     {
@@ -60,21 +76,16 @@ class RegistrationForm extends CFormModel
     public function checkEmail($attribute,$params)
     {
         $model = User::model()->find('email = :email', array(':email' => $this->$attribute));
-        if ($model)
+        
+        if ($model) {
             $this->addError('email', Yii::t('UserModule.user', 'Email already busy'));
+        }
     }
 
-    /**
-     * Обнуляем введённое значение капчи, если оно введено неверно:
-     *
-     * @param string $attribute - имя атрибута
-     * @param mixed  $params    - параметры
-     *
-     * @return void
-     **/
     public function emptyOnInvalid($attribute, $params)
     {
-        if ($this->hasErrors())
+        if ($this->hasErrors()) {
             $this->verifyCode = null;
+        }
     }
 }

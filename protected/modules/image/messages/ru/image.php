@@ -17,6 +17,9 @@
  * NOTE, this file must be saved in UTF-8 encoding.
  */
 return array (
+  'Images categories' => 'Категории изображений',
+  'General module settings' => 'Основные настройки модуля',
+  'Link' => 'Ссылка',
   '*unknown*' => '*неизвестно*',
   '--choose--' => '--выберите--',
   '0.4' => '0.4',
@@ -50,6 +53,8 @@ return array (
   'Images - manage' => 'Изображения - управление',
   'Find image' => 'Искать изображение',
   'Picture' => 'Картинка',
+  'Delete' => 'Удалить',
+  'Do you really want to delete selected elements?' => 'Вы уверены, что хотите удалить выбранные элементы?',
   'Directory for uploading images' => 'Каталог для загрузки изображений',
   'Category' => 'Категория',
   'Content' => 'Контент',

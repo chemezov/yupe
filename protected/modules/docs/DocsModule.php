@@ -11,6 +11,7 @@
  */
 class DocsModule extends yupe\components\WebModule
 {
+    const VERSION = '0.7';
 
     public $categorySort    = 9999;
     public $docFolder       = 'application.modules.docs.guide';
@@ -133,8 +134,8 @@ class DocsModule extends yupe\components\WebModule
     public function getNavigation()
     {
         return array(
-            array('icon' => 'list-alt', 'label' => Yii::t('DocsModule.docs', 'Show local files'), 'url' => array('/backend/docs')),
-            array('icon' => 'list-alt', 'label' => Yii::t('DocsModule.docs', 'Local docs'), 'url' => array('/docs')),
+            array('icon' => 'list-alt', 'label' => Yii::t('DocsModule.docs', 'Show local files'), 'url' => array('/docs/docsBackend/index')),
+            array('icon' => 'list-alt', 'label' => Yii::t('DocsModule.docs', 'Local docs'), 'url' => array('/docs/show/index')),
             array('icon' => 'icon-globe', 'label' => Yii::t('DocsModule.docs', 'Online docs'), 'url' => 'http://yupe.ru/docs/index.html?from=help','linkOptions' => array('target' => '_blank')),
         );
     }
@@ -196,7 +197,7 @@ class DocsModule extends yupe\components\WebModule
      */
     public function getVersion()
     {
-        return Yii::t('DocsModule.docs', '0.2');
+        return self::VERSION;
     }
 
     /**
@@ -258,12 +259,17 @@ class DocsModule extends yupe\components\WebModule
             array(
                 'label' => Yii::t('DocsModule.docs', 'Documentation'),
                 'url'   => array('/docs/show/index', 'file' => 'index'),
-                'icon'  => 'home white',
+                'icon'  => 'home',
             ),
             array(
                 'label' => Yii::t('DocsModule.docs', 'About Yupe!'),
-                'icon'  => 'info-sign white',
+                'icon'  => 'info-sign',
                 'items' => array(
+                    array(
+                        'label' => Yii::t('DocsModule.docs', 'Install'),
+                        'url'   => array('/docs/show/index', 'file' => 'install', 'moduleID' => 'yupe'),
+                        'icon'  => 'file',
+                    ),
                     array(
                         'label' => Yii::t('DocsModule.docs', 'Abilities'),
                         'url'   => array('/docs/show/index', 'file' => 'capability', 'moduleID' => 'yupe'),
@@ -283,8 +289,18 @@ class DocsModule extends yupe\components\WebModule
             ),
             array(
                 'label' => Yii::t('DocsModule.docs', 'For developers'),
-                'icon'  => 'th-large white',
+                'icon'  => 'th-large',
                 'items' => array(
+                    array(
+                        'label' => Yii::t('DocsModule.docs','Creating module'),
+                        'url'   => array('/docs/show/index', 'file' => 'module.create'),
+                        'icon'  => 'file'
+                    ),
+                    array(
+                        'label' => Yii::t('DocsModule.docs', 'Set testing environment'),
+                        'url'   => array('/docs/show/index', 'file' => 'testing'),
+                        'icon'  => 'file',
+                    ),
                     array(
                         'label' => Yii::t('DocsModule.docs', 'Writing docs'),
                         'url'   => array('/docs/show/index', 'file' => 'doc.files'),
@@ -317,7 +333,7 @@ class DocsModule extends yupe\components\WebModule
                     ),
                     array(
                         'label' => Yii::t('DocsModule.docs', 'IDE/Editors'),
-                        'icon'  => 'th-large white',
+                        'icon'  => 'th-large',
                         'items' => array(
                             array(
                                 'label' => Yii::t('DocsModule.docs', 'Working in eclipse'),
@@ -330,18 +346,13 @@ class DocsModule extends yupe\components\WebModule
             ),
             array(
                 'label' => Yii::t('DocsModule.docs', 'Components'),
-                'icon'  => 'th-large white',
+                'icon'  => 'th-large',
                 'items' => array(
                     array(
                         'label' => Yii::t('DocsModule.docs', 'RSS feed generation'),
                         'url'   => array('/docs/show/index', 'file' => 'atomfeed', 'moduleID' => 'yupe'),
                         'icon'  => 'file',
-                    ),
-                    array(
-                        'label' => Yii::t('DocsModule.docs', 'Curl wrapper'),
-                        'url'   => array('/docs/show/index', 'file' => 'curl.wrapper', 'moduleID' => 'yupe'),
-                        'icon'  => 'file',
-                    ),
+                    ),                 
                     array(
                         'label' => Yii::t('DocsModule.docs', 'Migrator'),
                         'url'   => array('/docs/show/index', 'file' => 'migrator.index', 'moduleID' => 'yupe'),
@@ -358,7 +369,7 @@ class DocsModule extends yupe\components\WebModule
             ),
             array(
                 'label' => Yii::t('DocsModule.docs', 'Modules'),
-                'icon'  => 'th-large white',
+                'icon'  => 'th-large',
                 'items' => array(
                     array(
                         'label' => Yii::t('DocsModule.docs', 'Blogs'),
@@ -369,6 +380,12 @@ class DocsModule extends yupe\components\WebModule
                         'label' => Yii::t('DocsModule.docs', 'Comment'),
                         'url'   => array('/docs/show/index', 'file' => 'index','moduleID' => 'comment' ),
                         'icon'  => 'file',
+                        'items' => array(
+                            array(
+                                'label' => Yii::t('DocsModule.docs', 'NestedSets'),
+                                'url' =>  array('/docs/show/index', 'file' => 'nsmigrate','moduleID' => 'comment' )
+                            )
+                        )
                     ),
                     array(
                         'label' => Yii::t('DocsModule.docs', 'ZendSearch'),
@@ -558,11 +575,16 @@ class DocsModule extends yupe\components\WebModule
             array_push(
                 $items, array(
                     'label' => $title,
-                    'url'   => array('/docs/default/show', 'file' => $key),
+                    'url'   => array('/docs/docsBackend/show', 'file' => $key),
                     'icon'  => 'file',
                 )
             );
         }
         return $items;
+    }
+
+    public function getAdminPageLink()
+    {
+        return '/docs/docsBackend/index';
     }
 }

@@ -17,6 +17,10 @@
  * NOTE, this file must be saved in UTF-8 encoding.
  */
 return array (
+  'Use drag and drop to sort' => 'Используйте drag & drop для сортировки',
+  'Answer' => 'Ответить',
+  'Delete' => 'Удалить',
+  'Do you really want to delete selected elements?' => 'Вы уверены, что хотите удалить выбранные элементы?',
   '*unknown*' => '*неизвестно*',
   '--choose menu--' => '--выберите меню--',
   '0.3' => '0.3',
@@ -50,9 +54,7 @@ return array (
   'Title' => 'Заголовок',
   'Item title' => 'Заголовок пункта меню.',
   'Page was not found!' => 'Запрошенная страница не найдена!',
-  'Change menu' => 'Изменить меню',
   'Change menu item' => 'Изменить пункт меню',
-  'Find menu' => 'Искать меню',
   'Find menu item' => 'Искать пункт меню',
   'Using for xfr' => 'Используется для указания xfr',
   'Using for open new page in new window or frame' => 'Используется для указания открытия новой страницы в новом окне или вкладке, фрейме.',
@@ -126,4 +128,7 @@ return array (
   'are required.' => 'обязательны.',
   'negation' => 'отрицание',
   'manage' => 'управление',
+  'New item was added to menu!' => 'Новый пункт был добавлен в меню!',
+  'Menu was created!' => 'Меню было создано!',
+  'Select {field}' => 'Выберите {field}',
 );
